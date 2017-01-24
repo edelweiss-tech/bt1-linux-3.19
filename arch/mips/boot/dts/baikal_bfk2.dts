@@ -26,7 +26,7 @@
 /include/ "baikal_t1_clocks.dtsi"
 
 / {
-	model = "Baikal-T BFK2 Board";
+	model = "T-Platforms mITX Board";
 	compatible = "baikal,mips";
 	#address-cells = <1>;
 	#size-cells = <1>;
@@ -41,9 +41,7 @@
 		ssi0 = &spi0;
 		ssi1 = &spi1;
 		ethernet0 = &gmac0;
-		ethernet1 = &gmac1;
 /*		ethernet2 = &xgmac; */
-		mdio-gpio0 = &mdio0;
 	};
 
 	chosen {
@@ -75,7 +73,7 @@
 
 	memory {
 		device_type = "memory";
-		reg = <0x00000000 0x08000000>,
+		reg = <0x00000000 0x06000000>,
 		      <0x20000000 0xC0000000>;
 	};
 
@@ -136,77 +134,6 @@
 			clock-names = "sataclk";
 		};
 
-		mdio0: be-mdio {
-			compatible = "be,mdio-gpio";
-			#address-cells = <1>;
-			#size-cells = <0>;
-			mdc-pin = <&porta 9 GPIO_ACTIVE_HIGH>;
-			mdio-pin = <&porta 11 GPIO_ACTIVE_HIGH>;
-			clocks = <&gpio_clk 0>;
-			clock-names = "gpioclk";
-
-			mv_ch0:88X2222@0C {
-				compatible = "marvell,88x2222", "ethernet-phy-ieee802.3-c45";
-				reg = <0x0C>;
-				phy-mode = "xgmii";
-				mv,line-mode = <0>; /* 10GBASE-R (0x71) */
-				mv,host-mode = <0>; /* 10GBASE-R (0x71) */
-			};
-
-			mv_ch1:88X2222@0D {
-				compatible = "marvell,88x2222", "ethernet-phy-ieee802.3-c45";
-				reg = <0x0D>;
-				phy-mode = "xgmii";
-				mv,line-mode = <0>; /* 10GBASE-R (0x71) */
-				mv,host-mode = <0>; /* 10GBASE-R (0x71) */
-			};
-
-			mv_ch2:88X2222@0E {
-				compatible = "marvell,88x2222", "ethernet-phy-ieee802.3-c45";
-				reg = <0x0E>;
-				phy-mode = "xgmii";
-				mv,line-mode = <0>; /* 10GBASE-R (0x71) */
-				mv,host-mode = <0>; /* 10GBASE-R (0x71) */
-			};
-
-			mv_ch3:88X2222@0F {
-				compatible = "marvell,88x2222", "ethernet-phy-ieee802.3-c45";
-				reg = <0x0F>;
-				phy-mode = "xgmii";
-				mv,line-mode = <0>; /* 10GBASE-R (0x71) */
-				mv,host-mode = <0>; /* 10GBASE-R (0x71) */
-			};
-		};
-
-/*
-
-		xgbe_phy: xgbe_phy@1F05D000 {
-			compatible = "be,xgbe-phy", "ethernet-phy-ieee802.3-c45";
-			reg = <0x1F05D000 0x1000>;
-			phy-handle = <&mv_ch0>;
-			phy-mode = "xgmii";
-			clocks = <&div_156m 0>;
-			clock-names = "xgbe_clk";
-			be,speed-set = <1>;
-			be,mode-set = <0>;
-			be,external-clock;
-		};
-
-		xgmac: eth0@1F054000 {
-			compatible = "be,baikal-xgbe";
-			reg = <0x1F054000 0x4000>,
-			      <0x1F05D000 0x1000>;
-			interrupt-parent = <&gic>;
-			interrupts = <GIC_SHARED 80 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&xgmac_dma 0>, <&xgmac_ptp 0>;
-			clock-names = "dma_clk", "ptp_clk";
-			phy-handle = <&xgbe_phy>;
-			phy-mode = "xgmii";
-			mac-address = [ 00 20 13 ba 1c a1 ];
-			local-mac-address = [ 00 20 13 ba 1c a1 ];
-		};
-*/
-
 		gmac0: eth1@1F05E000 {
 			compatible = "be,dwmac", "snps,dwmac-3.710", "snps,dwmac";
 			reg = <0x1F05E000 0x2000>;
@@ -218,24 +145,6 @@
 			clock-names = "stmmaceth";
 			mac-address = [ 7a 72 6c 4a 7a 07 ];
 			local-mac-address = [ 7a 72 6c 4a 7a 07 ];
-			txd0-skew-ps = <0>;
-			txd1-skew-ps = <0>;
-			txd2-skew-ps = <0>;
-			txd3-skew-ps = <0>;
-			txc-skew-ps  = <0xff>;
-		};
-
-		gmac1: eth2@1F060000 {
-			compatible = "be,dwmac", "snps,dwmac-3.710", "snps,dwmac";
-			reg = <0x1F060000 0x2000>;
-			interrupt-parent = <&gic>;
-			interrupts = <GIC_SHARED 73 IRQ_TYPE_LEVEL_HIGH>;
-			interrupt-names = "macirq";
-			phy-mode = "rgmii";
-			clocks = <&gmac1_clk 0>;
-			clock-names = "stmmaceth";
-			mac-address = [ 7a 72 6c 4a 7b 07 ];
-			local-mac-address = [ 7a 72 6c 4a 7b 07 ];
 			txd0-skew-ps = <0>;
 			txd1-skew-ps = <0>;
 			txd2-skew-ps = <0>;
@@ -298,6 +207,21 @@
 			interrupts = <GIC_SHARED 127 IRQ_TYPE_LEVEL_HIGH>;
 		};
 	};
+
+  leds {
+    compatible = "gpio-leds";
+    hdd {
+      label = "Disk Activity";
+      gpios = <&porta 18 GPIO_ACTIVE_HIGH>;
+      linux,default-trigger = "heartbeat";
+    };
+    
+    /* fault { */
+    /*   gpios = <&porta 18 GPIO_ACTIVE_HIGH>; */
+    /*   /\* Keep LED on if BIOS detected hardware fault *\/ */
+    /* default-state = "off"; */
+    /* }; */
+  };
 
 	apb {
 		compatible = "simple-bus";
@@ -374,23 +298,6 @@
 			clocks = <&i2c0_clk 0>;
 			clock-names = "i2c0clk";
 
-			codec@18 {
-				compatible = "tlv320aic310x";
-				reg = <0x18>;
-			};
-
-			gpioexp: gpioexp@20 {
-				compatible = "nxp,pca9500";
-				#gpio-cells = <2>;
-				reg = <0x20>;
-				gpio-controller;
-			};
-
-			eeprom@50 {
-				compatible = "atmel,24c02";
-				pagesize = <16>;
-				reg = <0x50>;
-			};
 		};
 
 		i2c1: i2c1@1F047000 {
@@ -403,23 +310,30 @@
 			clocks = <&i2c1_clk 0>;
 			clock-names = "i2c1clk";
 
+			eeprom@53 {
+				compatible = "atmel,24c32";
+				pagesize = <32>;
+				reg = <0x53>;
+			};
+
 			eeprom@50 {
 				compatible = "atmel,24c02";
 				pagesize = <16>;
 				reg = <0x50>;
 			};
 
-			eeprom@51 {
-				compatible = "atmel,24c02";
-				pagesize = <16>;
+			rtc@51 {
+				compatible = "nxp,pcf2127";
 				reg = <0x51>;
 			};
-
-			rtc@56 {
-				compatible = "abracon,abeoz9s3";
-				reg = <0x56>;
-			};
-
+      
+      shred: gpio@21 {
+        compatible = "nxp,pcf8574";
+        reg = <0x21>;
+        gpio-controller;
+        #gpio-cells = <2>;
+        lines-initial-states = <0x0>;
+      };
 		};
 
 		spi0: spi0@1F04E000 {
@@ -430,39 +344,7 @@
 			interrupts = <GIC_SHARED 40 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&spi0_clk 0>;
 			clock-names = "spi0clk";
-			num-cs = <3>;
-			cs-gpios = <&porta 28 GPIO_ACTIVE_LOW>,
-				   <&porta 23 GPIO_ACTIVE_LOW>;
-
-			flash0: m25p80@0 {
-				#address-cells = <1>;
-				#size-cells = <1>;
-				status = "okay";
-				compatible = "micron,n25q256a", "jedec,spi-nor";
-				reg = <0>;
-				spi-max-frequency = <10000000>;
-				m25p,fast-read;
-
-				mtd0@00000000 {
-					label = "flash0";
-					reg = <0x00000000 0x02000000>;
-				};
-			};
-
-			flash1: m25p80@1 {
-				#address-cells = <1>;
-				#size-cells = <1>;
-				status = "okay";
-				compatible = "micron,n25q256a", "jedec,spi-nor";
-				reg = <1>;
-				spi-max-frequency = <10000000>;
-				m25p,fast-read;
-
-				mtd1@00000000 {
-					label = "flash1";
-					reg = <0x00000000 0x02000000>;
-				};
-			};
+			num-cs = <0>;
 		};
 
 		spi1: spi1@1F04F000 {
@@ -473,10 +355,19 @@
 			interrupts = <GIC_SHARED 41 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&spi1_clk 0>;
 			clock-names = "spi1clk";
-			num-cs = <1>;
+			num-cs = <2>;
 			cs-gpios = <&porta 17 0>;
-		};
+      
+      mmc-slot@0 {
+        compatible = "fsl,mpc8323rdb-mmc-slot",
+        "mmc-spi-slot";
+        reg = <1>;
+        voltage-ranges = <2000 3600>;
+        spi-max-frequency = <10000000>;
+      };
 
+    };
+    
 		gpio: gpio@1F044000 {
 			compatible = "snps,dw-apb-gpio";
 			reg = <0x1F044000 0x1000>;
