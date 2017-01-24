@@ -1,6 +1,5 @@
-#ifndef CHIP_H__
-#define CHIP_H__
-
+#ifndef DDK750_CHIP_H__
+#define DDK750_CHIP_H__
 #define DEFAULT_INPUT_CLOCK 14318181 /* Default reference clock */
 #ifndef SM750LE_REVISION_ID
 #define SM750LE_REVISION_ID ((unsigned char)0xfe)
@@ -73,8 +72,8 @@ initchip_param_t;
 logical_chip_type_t getChipType(void);
 unsigned int calcPllValue(unsigned int request, pll_value_t *pll);
 unsigned int formatPllReg(pll_value_t *pPLL);
-void set_mmio(void __iomem *, unsigned short, char);
-unsigned int getVMSize(void);
-int initChipParm(initchip_param_t *);
+void ddk750_set_mmio(void __iomem *, unsigned short, char);
+unsigned int ddk750_getVMSize(void);
+int ddk750_initHw(initchip_param_t *);
 
 #endif
