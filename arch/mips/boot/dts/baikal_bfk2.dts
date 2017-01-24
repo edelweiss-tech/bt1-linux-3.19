@@ -323,7 +323,7 @@
 			};
 
 			rtc@51 {
-				compatible = "nxp,pcf2127";
+				compatible = "nxp,pcf2129";
 				reg = <0x51>;
 			};
       
