@@ -344,7 +344,15 @@
 			interrupts = <GIC_SHARED 40 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&spi0_clk 0>;
 			clock-names = "spi0clk";
-			num-cs = <0>;
+			num-cs = <2>;
+      
+      mmc-slot@0 {
+        compatible = "fsl,mpc8323rdb-mmc-slot",
+        "kspisd-slot";
+        reg = <1>;
+        voltage-ranges = <2000 3600>;
+        spi-max-frequency = <10000000>;
+      };
 		};
 
 		spi1: spi1@1F04F000 {
@@ -355,17 +363,7 @@
 			interrupts = <GIC_SHARED 41 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&spi1_clk 0>;
 			clock-names = "spi1clk";
-			num-cs = <2>;
-			cs-gpios = <&porta 17 0>;
-      
-      mmc-slot@0 {
-        compatible = "fsl,mpc8323rdb-mmc-slot",
-        "mmc-spi-slot";
-        reg = <1>;
-        voltage-ranges = <2000 3600>;
-        spi-max-frequency = <10000000>;
-      };
-
+			num-cs = <0>;
     };
     
 		gpio: gpio@1F044000 {
