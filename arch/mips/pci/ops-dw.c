@@ -41,7 +41,7 @@ static int dw_pcibios_read(struct pci_bus *bus, unsigned int devfn,
 	volatile u8 *addr = 0;
 	u16 target;
 
-	if ((bus->number == PCIE_ROOT_BUS_NUM) && ((PCI_SLOT(devfn) != 0) && (PCI_SLOT(devfn) != 7))) {
+    if ((bus->number == PCIE_ROOT_BUS_NUM) && (PCI_SLOT(devfn) != 0)) {
 		*val = 0xffffffff;
 		return PCIBIOS_DEVICE_NOT_FOUND;
 	}
@@ -69,17 +69,6 @@ static int dw_pcibios_read(struct pci_bus *bus, unsigned int devfn,
 
 	smp_mb();
 
-	if ((bus->number == PCIE_ROOT_BUS_NUM) && (PCI_SLOT(devfn) == 7)) {
-		/* Read Device/Vendor ID. */
-		data = readl(addr);
-
-		/* Hide all devices except IDT bridges. */
-		if ((data & 0xFFFF) != IDT_VID) {
-			*val = 0xffffffff;
-			return PCIBIOS_DEVICE_NOT_FOUND;
-		}
-	}
-
 	addr += (where & ~0x3);
 	data = readl(addr);
 
@@ -103,7 +92,7 @@ static int dw_pcibios_write(struct pci_bus *bus, unsigned int devfn,
 	volatile u8 *addr = 0;
 	u16 target;
 
-	if ((bus->number == PCIE_ROOT_BUS_NUM) && ((PCI_SLOT(devfn) != 0) && (PCI_SLOT(devfn) != 7))) {
+    if ((bus->number == PCIE_ROOT_BUS_NUM) && (PCI_SLOT(devfn) != 0)) {
 		return PCIBIOS_DEVICE_NOT_FOUND;
 	}
 

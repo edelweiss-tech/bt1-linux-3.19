@@ -29,7 +29,9 @@
 
 #define PCIE_CFG_BASE                   0xBF052000
 #define PMU_BASE                        0xBF04D000
-#define PCIE_ROOT_BUS_NUM		0
+/* Start enumerating the buses from 1 since IDT-switch oddly acts, when it's
+ * directly connected to the RC and has bus number 0 */
+#define PCIE_ROOT_BUS_NUM       1
 
 #define	PHYS_PCIMEM_BASE_ADDR		(0x08000000)
 #define	PHYS_PCIMEM_LIMIT_ADDR		(0x18000000 - 1)
