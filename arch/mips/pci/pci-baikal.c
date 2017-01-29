@@ -47,18 +47,20 @@ static struct resource dw_io_resource = {
 
 static struct resource dw_busn_resource = {
 	.name	= "DW PCI busn",
-	.start	= 2,
+	.start	= PCIE_ROOT_BUS_NUM, /* It's going to be overwritten anyway */
 	.end	= 255,
 	.flags	= IORESOURCE_BUS,
 };
 
 extern struct pci_ops dw_pci_ops;
+int dw_pcie_get_busn(void);
 
 static struct pci_controller dw_controller = {
 	.pci_ops	= &dw_pci_ops,
 	.io_resource	= &dw_io_resource,
 	.mem_resource	= &dw_mem_resource,
 	.bus_resource	= &dw_busn_resource,
+    .get_busno      = dw_pcie_get_busn,
 };
 
 #ifdef CONFIG_PCI_MSI
@@ -83,6 +85,13 @@ static int dw_aer_irq;
 #define ERROR_MISMATCH7         0x0400
 #define ERROR_MISMATCH8         0x0800
 
+/* Retrieve the secondary bus number of the RC */
+int dw_pcie_get_busn(void)
+{
+   return PCIE_ROOT_BUS_NUM;
+}
+
+void pci_dw_dma_init(void);
 
 void baikal_find_vga_mem_init(void);
 uint32_t dw_pcie_phy_read(uint32_t phy_addr)
@@ -318,7 +327,7 @@ int dw_pcie_init(void)
 	/* Configure bus. */
 	reg = READ_PCIE_REG(PCIE_SEC_LAT_TIMER_SUB_BUS_SEC_BUS_PRI_BUS_REG);
 	reg &= 0xff000000;
-	reg |= (0x00ff0201 | PCIE_ROOT_BUS_NUM); /* IDT PCI Bridge don't like the primary bus equals 0. */
+    reg |= (0x00ff0000 | (PCIE_ROOT_BUS_NUM << 8)); /* IDT PCI Bridge don't like the primary bus equals 0 */
 	WRITE_PCIE_REG(PCIE_SEC_LAT_TIMER_SUB_BUS_SEC_BUS_PRI_BUS_REG, reg);
 
 	/* Setup memory base. */
@@ -445,7 +454,7 @@ void __init mips_pcibios_init(void)
 
 	iomem_resource.end &= 0xfffffffffULL;
 	ioport_resource.end = controller->io_resource->end;
-	controller->io_map_base = controller->io_resource->start;
+    controller->io_map_base = IO_BASE;
 	controller->io_offset = 0;
 	register_pci_controller(controller);
 

@@ -42,6 +42,7 @@
 #include <asm/mmu_context.h>
 #include <asm/time.h>
 #include <asm/setup.h>
+#include <asm/maar.h>
 
 volatile cpumask_t cpu_callin_map;	/* Bitmask of started secondaries */
 
@@ -127,6 +128,9 @@ asmlinkage void start_secondary(void)
 	mips_clockevent_init();
 	mp_ops->init_secondary();
 	cpu_report();
+#ifndef CONFIG_MACH_BAIKAL_QEMU
+	maar_init();
+#endif
 
 	/*
 	 * XXX parity protection should be folded in here when it's converted
