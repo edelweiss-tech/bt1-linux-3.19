@@ -397,3 +397,7 @@ endif # MACH_BAIKAL
 config SYS_HAS_CPU_MIPS32_R5
     bool
     default n
+
+config MITX2_PM_POWEROFF
+  bool "BMC-based power off procedure for mITX2"
+  default n
