@@ -263,6 +263,7 @@ unsigned __weak platform_maar_init(unsigned num_pairs)
 		case BOOT_MEM_RAM:
 		case BOOT_MEM_INIT_RAM:
 			break;
+		case BOOT_MEM_RESERVED_PREF:
 		default:
 			continue;
 		}

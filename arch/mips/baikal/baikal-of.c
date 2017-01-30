@@ -23,6 +23,7 @@
 #include <linux/of_address.h>
 #include <linux/sys_soc.h>
 #include <linux/slab.h>			/* kzalloc */
+#include <linux/memblock.h>
 
 #include <asm/fw/fw.h>
 #include <asm/prom.h>
@@ -61,6 +62,94 @@ void __init device_tree_init(void)
 	unflatten_and_copy_device_tree();
 }
 
+static int __init __get_reserved_region(unsigned long node,
+					     const char *uname)
+{
+	int t_len = (dt_root_addr_cells + dt_root_size_cells) * sizeof(__be32);
+	phys_addr_t base, size;
+	int len;
+	const __be32 *prop;
+
+	prop = of_get_flat_dt_prop(node, "reg", &len);
+	if (!prop)
+		return -ENOENT;
+
+	if (len && len % t_len != 0) {
+		pr_err("Reserved memory: invalid reg property in '%s', skipping node.\n",
+		       uname);
+		return -EINVAL;
+	}
+
+	while (len >= t_len) {
+		base = dt_mem_next_cell(dt_root_addr_cells, &prop);
+		size = dt_mem_next_cell(dt_root_size_cells, &prop);
+
+		if (size) {
+			add_memory_region(base, size, BOOT_MEM_RESERVED_PREF);
+			pr_info("Reserved memory: reserved region for node '%s': base 0x%08x, size %ld MiB\n",
+              uname, (uint32_t)base, (unsigned long)size / SZ_1M);
+		}
+		else
+			pr_info("Reserved memory: failed to reserve memory for node '%s': base %pa, size %ld MiB\n",
+              uname, &base, (unsigned long)size / SZ_1M);
+
+		len -= t_len;
+	}
+	return 0;
+}
+
+static int __init __reserved_mem_check_root(unsigned long node)
+{
+	const __be32 *prop;
+
+	prop = of_get_flat_dt_prop(node, "#size-cells", NULL);
+	if (!prop || be32_to_cpup(prop) != dt_root_size_cells)
+		return -EINVAL;
+
+	prop = of_get_flat_dt_prop(node, "#address-cells", NULL);
+	if (!prop || be32_to_cpup(prop) != dt_root_addr_cells)
+		return -EINVAL;
+
+	prop = of_get_flat_dt_prop(node, "ranges", NULL);
+	if (!prop)
+		return -EINVAL;
+	return 0;
+}
+
+static int __init __find_reserved_mem(unsigned long node, const char *uname,
+					  int depth, void *data)
+{
+	static int found;
+	const char *status;
+	int err;
+
+	if (!found && depth == 1 && strcmp(uname, "reserved-memory") == 0) {
+		if (__reserved_mem_check_root(node) != 0) {
+			pr_err("Reserved memory: unsupported node format, ignoring\n");
+			/* break scan */
+			return 1;
+		}
+		found = 1;
+		/* scan next node */
+		return 0;
+	} else if (!found) {
+		/* scan next node */
+		return 0;
+	} else if (found && depth < 2) {
+		/* scanning of /reserved-memory has been finished */
+		return 1;
+	}
+
+	status = of_get_flat_dt_prop(node, "status", NULL);
+	if (status && strcmp(status, "okay") != 0 && strcmp(status, "ok") != 0)
+		return 0;
+
+	err = __get_reserved_region(node, uname);
+
+	/* scan next node */
+	return 1;
+}
+
 int __init device_tree_early_init(void)
 {
 	/* Assume that device tree blob ptr in fw_arg3 */
@@ -71,6 +160,8 @@ int __init device_tree_early_init(void)
 		pr_err("Device tree blob address < PAGE_OFFSET\n");
 		goto no_dtb;
 	}
+
+	of_scan_flat_dt(__find_reserved_mem, NULL);
 
 	if (!early_init_dt_scan(fdt))
 		goto no_dtb;
