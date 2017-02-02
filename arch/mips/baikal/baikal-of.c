@@ -161,10 +161,10 @@ int __init device_tree_early_init(void)
 		goto no_dtb;
 	}
 
-	of_scan_flat_dt(__find_reserved_mem, NULL);
-
 	if (!early_init_dt_scan(fdt))
 		goto no_dtb;
+
+	of_scan_flat_dt(__find_reserved_mem, NULL);
 
 	/* Inform about initial device tree location */
 	pr_info("Machine device tree at: 0x%p\n", fdt);
