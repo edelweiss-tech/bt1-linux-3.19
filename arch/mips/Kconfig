@@ -2554,6 +2554,7 @@ config USE_OF
 	bool
 	select OF
 	select OF_EARLY_FLATTREE
+	select OF_RESERVED_MEM
 	select IRQ_DOMAIN
 
 menuconfig MIPS_ERRATA
