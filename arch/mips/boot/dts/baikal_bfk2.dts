@@ -288,7 +288,7 @@
 			reg-io-width = <4>;
 			clocks = <&uart_clk 0>, <&apb_clk 0>;
 			clock-names = "baudclk", "apb_pclk";
-		};
+    };
 
 		wdt: watchdog@1F04C000 {
 			compatible = "snps,dw-wdt";
@@ -336,6 +336,11 @@
 				compatible = "nxp,pcf2129";
 				reg = <0x51>;
 			};
+
+      bmc@8 {
+        compatible = "t-platforms,mitx2-bmc";
+        reg = <0x08>;
+      };
       
       shred: gpio@21 {
         compatible = "nxp,pcf8574";
