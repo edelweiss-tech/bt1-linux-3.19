@@ -26,14 +26,13 @@ static int mitx2_bmc_validate(struct i2c_client *client) {
   static const uint8_t vals[] = {BMC_ID1_VAL, BMC_ID2_VAL, BMC_ID3_VAL, BMC_ID4_VAL};
   for (i=0; i<ARRAY_SIZE(regs); i++) {
     ret = i2c_smbus_read_byte_data(client, regs[i]);
-    
+    printk(KERN_INFO "byte data: %i\n", ret);
     if (ret < 0) {
       dev_err(&client->dev, "%s: could not read register %x\n", __func__, regs[i]);
-    
       return -EIO;
     }
-    if (ret != vals[i+1]) {
-			dev_err(&client->dev, "%s: bad value [0x%02x] in register 0x%02x, should be [0x%02x]", __func__, regs[i], ret, vals[i]);
+    if (ret != vals[i]) {
+			dev_err(&client->dev, "%s: bad value [0x%02x] in register 0x%02x, should be [0x%02x]\n", __func__, ret, regs[i], vals[i]);
 
 			return -ENODEV;
 		}
