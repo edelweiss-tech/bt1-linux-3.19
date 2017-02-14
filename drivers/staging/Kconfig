@@ -108,4 +108,6 @@ source "drivers/staging/unisys/Kconfig"
 
 source "drivers/staging/clocking-wizard/Kconfig"
 
+source "drivers/staging/mitx_bmc/Kconfig"
+
 endif # STAGING

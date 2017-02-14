@@ -1,0 +1,3 @@
+config MITX2_BMC
+	tristate "mITX2 BMC support"
+	depends on I2C

@@ -62,24 +62,26 @@ extern int baikal_be_handler(struct pt_regs *regs, int is_fixup);
 #ifdef CONFIG_MITX2_PM_POWEROFF
 
 void mitx2_poweroff(void) {
-  struct file *f;
-  mm_segment_t oldfs;
-  struct tty_struct *tty;  
+  //struct file *f;
+  //mm_segment_t oldfs;
+  //struct tty_struct *tty;
+  extern int bmc_pwroff_rq(void);
   printk(KERN_INFO "mITX2 poweroff proc\n");
-  f=filp_open("/dev/ttyS1", O_RDWR, 0);
+  bmc_pwroff_rq();
+  /* f=filp_open("/dev/ttyS1", O_RDWR, 0); */
 
-  oldfs=get_fs();
-  set_fs(KERNEL_DS);
-  f->f_pos=0;
+  /* oldfs=get_fs(); */
+  /* set_fs(KERNEL_DS); */
+  /* f->f_pos=0; */
 
-  tty=(struct tty_struct*)f->private_data;
-  tty->termios.c_cflag &= ~(CBAUD | PARENB | PARODD | CSIZE);
-  tty->termios.c_cflag |= (B115200 | CSIZE | CS8 | CLOCAL);  
-  tty->termios.c_oflag=0;
-  tty->termios.c_lflag=0;
-  f->f_op->unlocked_ioctl(f, TCSETS, (unsigned long)&tty->termios);
-  f->f_op->write(f," poweroff\r\n",11,&f->f_pos);
-  set_fs(oldfs);
+  /* tty=(struct tty_struct*)f->private_data; */
+  /* tty->termios.c_cflag &= ~(CBAUD | PARENB | PARODD | CSIZE); */
+  /* tty->termios.c_cflag |= (B115200 | CSIZE | CS8 | CLOCAL);   */
+  /* tty->termios.c_oflag=0; */
+  /* tty->termios.c_lflag=0; */
+  /* f->f_op->unlocked_ioctl(f, TCSETS, (unsigned long)&tty->termios); */
+  /* f->f_op->write(f," poweroff\r\n",11,&f->f_pos); */
+  /* set_fs(oldfs); */
 }
 
 #endif/*CONFIG_MITX2_PM_POWEROFF*/
