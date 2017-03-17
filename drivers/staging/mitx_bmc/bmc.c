@@ -8,17 +8,30 @@
 #include <linux/delay.h>
 #include <linux/kthread.h>
 
-#define BMC_ID1_REG 0x00
-#define BMC_ID2_REG 0x01
-#define BMC_ID3_REG 0x02
-#define BMC_ID4_REG 0x03
-#define BMC_SOFTOFF_RQ_REG 0x04
-#define BMC_PWROFF_RQ_REG 0x05
+enum I2C_REGS {
+  R_ID1 = 0,
+  R_ID2,
+  R_ID3,
+  R_ID4,
+  R_SOFTOFF_RQ,
+  R_PWROFF_RQ,
+  R_PWRBTN_STATE,
+  R_VERSION1,
+  R_VERSION2,
+  R_BOOTREASON,
+  R_BOOTREASON_ARG,
+  R_SCRATCH1,
+  R_SCRATCH2,
+  R_SCRATCH3,
+  R_SCRATCH4,
+  R_COUNT
+};
 
 #define BMC_ID1_VAL 0x49
 #define BMC_ID2_VAL 0x54
 #define BMC_ID3_VAL 0x58
-#define BMC_ID4_VAL 0x32
+#define BMC_ID4_VAL0 0x32
+#define BMC_ID4_VAL1 0x2
 
 #define POLL_JIFFIES 100
 
@@ -30,14 +43,17 @@ static struct i2c_driver mitx2_bmc_i2c_driver;
 static struct input_dev *button_dev;
 static struct bmc_poll_data poll_data;
 static struct task_struct *polling_task;
+static uint8_t bmc_proto_version[3];
+static uint8_t bmc_bootreason[2];
+static uint8_t bmc_scratch[4];
 static const char input_name[] = "BMC input dev";
 static uint8_t prev_ret;
 
 int
 bmc_pwroff_rq(void) {
   int ret = 0;
-  printk(KERN_INFO "Write reg BMC_PWROFF_RQ_REG\n");
-  ret = i2c_smbus_write_byte_data(poll_data.c, BMC_PWROFF_RQ_REG, 0x01);
+  printk(KERN_INFO "Write reg R_PWROFF_RQ\n");
+  ret = i2c_smbus_write_byte_data(poll_data.c, R_PWROFF_RQ, 0x01);
   printk(KERN_INFO "ret: %i\n", ret);
   return ret;
 }
@@ -51,12 +67,12 @@ pwroff_rq_poll_fn(void *data) {
       break;
     }
     //dev_info(&poll_data.c->dev, "Polling\n");
-    ret = i2c_smbus_read_byte_data(poll_data.c, BMC_SOFTOFF_RQ_REG);
+    ret = i2c_smbus_read_byte_data(poll_data.c, R_SOFTOFF_RQ);
     //dev_info(&poll_data.c->dev, "Polling returned: %i\n", ret);
     if (prev_ret!=ret) {
       dev_info(&poll_data.c->dev, "key change [%i]\n", ret);
       if (ret < 0) {
-        dev_err(&poll_data.c->dev, "Could not read register %x\n", BMC_SOFTOFF_RQ_REG);
+        dev_err(&poll_data.c->dev, "Could not read register %x\n", R_SOFTOFF_RQ);
         return -EIO;
       }
       if (ret >= 0) {
@@ -80,8 +96,11 @@ pwroff_rq_poll_fn(void *data) {
 static int mitx2_bmc_validate(struct i2c_client *client) {
   int ret = 0;
   int i = 0 ;
-  static const uint8_t regs[] = {BMC_ID1_REG, BMC_ID2_REG, BMC_ID3_REG, BMC_ID4_REG};
-  static const uint8_t vals[] = {BMC_ID1_VAL, BMC_ID2_VAL, BMC_ID3_VAL, BMC_ID4_VAL};
+  static const uint8_t regs[] = {R_ID1, R_ID2, R_ID3};
+  static const uint8_t vals[] = {BMC_ID1_VAL, BMC_ID2_VAL, BMC_ID3_VAL};
+  bmc_proto_version[0] = 0;
+  bmc_proto_version[1] = 0;
+  bmc_proto_version[2] = 0;
   for (i=0; i<ARRAY_SIZE(regs); i++) {
     ret = i2c_smbus_read_byte_data(client, regs[i]);
     if (ret < 0) {
@@ -95,18 +114,57 @@ static int mitx2_bmc_validate(struct i2c_client *client) {
 		}
 
   }
-  //printk(KERN_INFO "Try write reg\n");
-  //ret = i2c_smbus_write_byte_data(client, BMC_PWROFF_RQ_REG, 0x01);
-  //printk(KERN_INFO "ret: %i\n", ret);
+  ret = i2c_smbus_read_byte_data(client, R_ID4);
+  if (ret < 0) {
+    dev_err(&client->dev, "Could not read register %x\n", R_ID4);
+    return -EIO;
+  }
+  if (ret == BMC_ID4_VAL0) {
+    bmc_proto_version[0] = 0;
+  } else if (ret == BMC_ID4_VAL1) {
+    bmc_proto_version[0] = 2;
+    ret = i2c_smbus_read_byte_data(client, R_VERSION1);
+    if (ret < 0) {
+      dev_err(&client->dev, "Could not read register %x\n", R_VERSION1);
+      return -EIO;
+    }
+    bmc_proto_version[1] = ret;
+    ret = i2c_smbus_read_byte_data(client, R_VERSION2);
+    if (ret < 0) {
+      dev_err(&client->dev, "Could not read register %x\n", R_VERSION2);
+      return -EIO;
+    }
+    bmc_proto_version[2] = ret;
+    ret = i2c_smbus_read_byte_data(client, R_BOOTREASON);
+    if (ret < 0) {
+      dev_err(&client->dev, "Could not read register %x\n", R_BOOTREASON);
+      return -EIO;
+    }
+    bmc_bootreason[0]=ret;
+    ret = i2c_smbus_read_byte_data(client, R_BOOTREASON_ARG);
+    if (ret < 0) {
+      dev_err(&client->dev, "Could not read register %x\n", R_BOOTREASON_ARG);
+      return -EIO;
+    }
+    bmc_bootreason[1]=ret;
+    for (i=R_SCRATCH1;i<=R_SCRATCH4;i++) {
+      ret = i2c_smbus_read_byte_data(client, i);
+      if (ret < 0) {
+        dev_err(&client->dev, "Could not read register %x\n", i);
+        return -EIO;
+      }
+      bmc_scratch[i] = ret;
+    }
+    
+  } else {
+    dev_err(&client->dev, "Bad value [0x%02x] in register 0x%02x\n", ret, R_ID4);
+    return -ENODEV;
+  }
   printk(KERN_INFO "BMC seems to be valid\n");
   return 0;
 }
 
 static int mitx2_bmc_i2c_probe(struct i2c_client *client, const struct i2c_device_id *id) {
-	/* static const struct regmap_config config = { */
-	/* 	.reg_bits = 8, */
-	/* 	.val_bits = 8, */
-	/* }; */
   int err = 0;
 
   printk(KERN_INFO "mitx2 bmc probe\n");
@@ -169,11 +227,44 @@ static const struct i2c_device_id mitx2_bmc_i2c_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, mitx2_bmc_i2c_id);
 
+static ssize_t version_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%i.%i.%i\n", bmc_proto_version[0], bmc_proto_version[1], bmc_proto_version[2]);
+}
+static struct kobj_attribute version_attribute =
+	__ATTR(version, 0664, version_show, NULL);
+
+static ssize_t bootreason_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%i\n", (bmc_bootreason[0] | (bmc_bootreason[1]<<8)));
+}
+
+static struct kobj_attribute bootreason_attribute =
+  __ATTR(bootreason, 0664, bootreason_show, NULL);
+
+static ssize_t scratch_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%i\n", (bmc_scratch[0] | (bmc_scratch[1]<<8) | (bmc_scratch[2]<<16) | (bmc_scratch[3]<<24)));
+}
+
+static struct kobj_attribute scratch_attribute =
+  __ATTR(scratch, 0664, scratch_show, NULL);
+
+
+static struct attribute *bmc_attrs[] = {
+	&version_attribute.attr,
+	&bootreason_attribute.attr,
+  &scratch_attribute.attr,
+	NULL,
+};
+
+ATTRIBUTE_GROUPS(bmc);
 
 static struct i2c_driver mitx2_bmc_i2c_driver = {
 	.driver		= {
 		.name	= "mitx2-bmc",
 		.of_match_table = of_match_ptr(mitx2_bmc_of_match),
+    .groups = bmc_groups,
 	},
 	.probe		= mitx2_bmc_i2c_probe,
   .remove	  = mitx2_bmc_i2c_remove,
