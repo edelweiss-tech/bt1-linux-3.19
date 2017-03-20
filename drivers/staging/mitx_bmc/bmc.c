@@ -52,9 +52,9 @@ static uint8_t prev_ret;
 int
 bmc_pwroff_rq(void) {
   int ret = 0;
-  printk(KERN_INFO "Write reg R_PWROFF_RQ\n");
+  dev_info(&poll_data.c->dev, "Write reg R_PWROFF_RQ\n");
   ret = i2c_smbus_write_byte_data(poll_data.c, R_PWROFF_RQ, 0x01);
-  printk(KERN_INFO "ret: %i\n", ret);
+  dev_info(&poll_data.c->dev, "ret: %i\n", ret);
   return ret;
 }
 //EXPORT_SYMBOL(bmc_pwroff_rq);
@@ -141,38 +141,48 @@ static int mitx2_bmc_validate(struct i2c_client *client) {
       return -EIO;
     }
     bmc_bootreason[0]=ret;
+    dev_info(&client->dev, "BMC bootreason[0]->%i\n", ret);
     ret = i2c_smbus_read_byte_data(client, R_BOOTREASON_ARG);
     if (ret < 0) {
       dev_err(&client->dev, "Could not read register %x\n", R_BOOTREASON_ARG);
       return -EIO;
     }
     bmc_bootreason[1]=ret;
+    dev_info(&client->dev, "BMC bootreason[1]->%i\n", ret);
     for (i=R_SCRATCH1;i<=R_SCRATCH4;i++) {
       ret = i2c_smbus_read_byte_data(client, i);
       if (ret < 0) {
         dev_err(&client->dev, "Could not read register %x\n", i);
         return -EIO;
       }
-      bmc_scratch[i] = ret;
+      bmc_scratch[i-R_SCRATCH1] = ret;
     }
     
   } else {
     dev_err(&client->dev, "Bad value [0x%02x] in register 0x%02x\n", ret, R_ID4);
     return -ENODEV;
   }
-  printk(KERN_INFO "BMC seems to be valid\n");
+  dev_info(&client->dev, "BMC seems to be valid\n");
   return 0;
 }
 
 static int mitx2_bmc_i2c_probe(struct i2c_client *client, const struct i2c_device_id *id) {
   int err = 0;
+  int i = 0;
 
-  printk(KERN_INFO "mitx2 bmc probe\n");
+  dev_info(&client->dev, "mitx2 bmc probe\n");
+  //i2c_recover_bus(client->adapter);
 
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
 		return -ENODEV;
 
-  err = mitx2_bmc_validate(client);
+  for (i=0;i<10;i++) {
+    err = mitx2_bmc_validate(client);
+    if (!err) {
+      break;
+    }
+    msleep(10);
+  }
   if (err) {
     return err;
   }
