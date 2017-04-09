@@ -1150,22 +1150,23 @@ static void mmc_spi_initsequence(struct mmc_spi_host *host)
 	 * the card returns BUSY status, the clock must issue several cycles
 	 * with chipselect high before the card will stop driving its output.
 	 */
-	host->spi->mode |= SPI_CS_HIGH;
-	if (spi_setup(host->spi) != 0) {
-		/* Just warn; most cards work without it. */
-		dev_warn(&host->spi->dev,
-				"can't change chip-select polarity\n");
-		host->spi->mode &= ~SPI_CS_HIGH;
-	} else {
-		mmc_spi_readbytes(host, 18);
+	//host->spi->mode |= SPI_CS_HIGH;
+  host->spi->mode &= ~SPI_CS_HIGH;
+	/* if (spi_setup(host->spi) != 0) { */
+	/* 	/\* Just warn; most cards work without it. *\/ */
+	/* 	dev_dbg(&host->spi->dev, */
+	/* 			"can't change chip-select polarity\n"); */
+	/* 	host->spi->mode &= ~SPI_CS_HIGH; */
+	/* } else { */
+	/* 	mmc_spi_readbytes(host, 18); */
 
-		host->spi->mode &= ~SPI_CS_HIGH;
-		if (spi_setup(host->spi) != 0) {
-			/* Wot, we can't get the same setup we had before? */
-			dev_err(&host->spi->dev,
-					"can't restore chip-select polarity\n");
-		}
-	}
+	/* 	host->spi->mode &= ~SPI_CS_HIGH; */
+	/* 	if (spi_setup(host->spi) != 0) { */
+	/* 		/\* Wot, we can't get the same setup we had before? *\/ */
+	/* 		dev_err(&host->spi->dev, */
+	/* 				"can't restore chip-select polarity\n"); */
+	/* 	} */
+	/* } */
 }
 
 static char *mmc_powerstring(u8 power_mode)
