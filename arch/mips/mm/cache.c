@@ -40,6 +40,9 @@ void (*__flush_kernel_vmap_range)(unsigned long vaddr, int size);
 EXPORT_SYMBOL_GPL(__flush_kernel_vmap_range);
 void (*__invalidate_kernel_vmap_range)(unsigned long vaddr, int size);
 
+void (*__flush_scache)(void);
+void (*__flush_local_cache)(void * args);
+
 /* MIPS specific cache operations */
 void (*flush_cache_sigtramp)(unsigned long addr);
 void (*local_flush_data_cache_page)(void * addr);
