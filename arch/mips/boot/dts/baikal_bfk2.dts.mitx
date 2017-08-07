@@ -26,7 +26,7 @@
 /include/ "baikal_t1_clocks.dtsi"
 
 / {
-	model = "T-Platforms mITX Board";
+	model = "Baikal MiniITX Board";
 	compatible = "baikal,mips";
 	#address-cells = <1>;
 	#size-cells = <1>;
@@ -41,11 +41,10 @@
 		ssi0 = &spi0;
 		ssi1 = &spi1;
 		ethernet0 = &gmac0;
-/*		ethernet2 = &xgmac; */
 	};
 
 	chosen {
-        bootargs = "root=/dev/ram rw rootwait console=ttyS0,115200n8 earlyprintk=uart8250,mmio32,0x1F04A000,115200 maxcpus=2 nohtw";
+		bootargs = "root=/dev/ram rw rootwait console=ttyS0,115200n8 earlyprintk=uart8250,mmio32,0x1F04A000,115200 maxcpus=2 nohtw";
 		linux,initrd-start = <0x01000000>;
 		linux,initrd-end   = <0x02000000>;
 	};
@@ -73,7 +72,7 @@
 
 	memory {
 		device_type = "memory";
-		reg = <0x00000000 0x07000000>,
+		reg = <0x00000000 0x08000000>,
 		      <0x20000000 0x70000000>;
 	};
 
@@ -218,20 +217,21 @@
 		};
 	};
 
-  leds {
-    compatible = "gpio-leds";
-    hdd {
-      label = "Disk Activity";
-      gpios = <&porta 18 GPIO_ACTIVE_HIGH>;
-      linux,default-trigger = "heartbeat";
-    };
-    
-    /* fault { */
-    /*   gpios = <&porta 18 GPIO_ACTIVE_HIGH>; */
-    /*   /\* Keep LED on if BIOS detected hardware fault *\/ */
-    /* default-state = "off"; */
-    /* }; */
-  };
+	leds {
+		compatible = "gpio-leds";
+		hdd {
+			label = "Disk Activity";
+			gpios = <&porta 18 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "heartbeat";
+		};
+		/*
+		fault {
+			gpios = <&porta 18 GPIO_ACTIVE_HIGH>;
+			//Keep LED on if BIOS detected hardware fault
+			default-state = "off";
+		};
+		*/
+	};
 
 	apb {
 		compatible = "simple-bus";
@@ -288,7 +288,7 @@
 			reg-io-width = <4>;
 			clocks = <&uart_clk 0>, <&apb_clk 0>;
 			clock-names = "baudclk", "apb_pclk";
-    };
+		};
 
 		wdt: watchdog@1F04C000 {
 			compatible = "snps,dw-wdt";
@@ -308,6 +308,23 @@
 			clocks = <&i2c0_clk 0>;
 			clock-names = "i2c0clk";
 
+			codec@18 {
+				compatible = "tlv320aic310x";
+				reg = <0x18>;
+			};
+
+			gpioexp: gpioexp@20 {
+				compatible = "nxp,pca9500";
+				#gpio-cells = <2>;
+				reg = <0x20>;
+				gpio-controller;
+			};
+
+			eeprom@50 {
+				compatible = "atmel,24c02";
+				pagesize = <8>;
+				reg = <0x50>;
+			};
 		};
 
 		i2c1: i2c1@1F047000 {
@@ -337,18 +354,36 @@
 				reg = <0x51>;
 			};
 
-      bmc@8 {
-        compatible = "t-platforms,mitx2-bmc";
-        reg = <0x08>;
-      };
-      
-      shred: gpio@21 {
-        compatible = "nxp,pcf8574";
-        reg = <0x21>;
-        gpio-controller;
-        #gpio-cells = <2>;
-        lines-initial-states = <0x0>;
-      };
+			bmc@8 {
+				compatible = "t-platforms,mitx2-bmc";
+				reg = <0x08>;
+			};
+
+			shred: gpio@21 {
+				compatible = "nxp,pcf8574";
+				reg = <0x21>;
+				gpio-controller;
+				#gpio-cells = <2>;
+				lines-initial-states = <0x0>;
+			};
+
+			eeprom@54 {
+				compatible = "atmel,24c02";
+				pagesize = <8>;
+				reg = <0x54>;
+			};
+
+			eeprom@55 {
+				compatible = "atmel,24c02";
+				pagesize = <8>;
+				reg = <0x55>;
+			};
+
+			rtc@56 {
+				compatible = "abracon,abeoz9s3";
+				reg = <0x56>;
+			};
+
 		};
 
 		spi0: spi0@1F04E000 {
@@ -360,18 +395,19 @@
 			clocks = <&spi0_clk 0>;
 			clock-names = "spi0clk";
 			num-cs = <2>;
-      cs-gpios = <&porta 14 GPIO_ACTIVE_LOW>;
-      
-      mmc-slot@0 {
-        compatible = "fsl,mpc8323rdb-mmc-slot",
-        "mmc-spi-slot";
-        reg = <0>;
-        //gpios = <&porta 15 GPIO_ACTIVE_LOW
-        //&porta 15 GPIO_ACTIVE_HIGH>;
-        voltage-ranges = <2000 3600>;
-        spi-max-frequency = <1000000>;
-        //interrupts = <GIC_SHARED 19 IRQ_TYPE_LEVEL_HIGH>;
-      };
+
+			cs-gpios = <&porta 14 GPIO_ACTIVE_LOW>;
+
+			mmc-slot@0 {
+				compatible = "fsl,mpc8323rdb-mmc-slot",
+				"mmc-spi-slot";
+				reg = <0>;
+				//gpios = <&porta 15 GPIO_ACTIVE_LOW
+				//&porta 15 GPIO_ACTIVE_HIGH>;
+				voltage-ranges = <2000 3600>;
+				spi-max-frequency = <7000000>;
+				//interrupts = <GIC_SHARED 19 IRQ_TYPE_LEVEL_HIGH>;
+			};
 		};
 
 		spi1: spi1@1F04F000 {
@@ -402,7 +438,12 @@
 				interrupts = <GIC_SHARED 19 IRQ_TYPE_LEVEL_HIGH>;
 			};
 		};
-
+        pvt: pvt@1F200000 {
+                compatible = "baikal,pvt";
+                reg = <0x1F200000 0x2C>;
+                //interrupt-parent = <&gic>;
+                //interrupts = <GIC_SHARED 31 IRQ_TYPE_LEVEL_HIGH>;
+        };
 		/* 64 KiB SRAM at address 0x1BF80000 */
 		sram: sram@1BF80000 {
 			compatible = "mmio-sram";

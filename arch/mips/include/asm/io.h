@@ -605,6 +605,9 @@ extern void (*_dma_cache_inv)(unsigned long start, unsigned long size);
 
 #endif /* CONFIG_DMA_NONCOHERENT || CONFIG_DMA_MAYBE_COHERENT */
 
+extern void (*__flush_scache)(void);
+extern void (*__flush_local_cache)(void * args);
+
 /*
  * Read a 32-bit register that requires a 64-bit read cycle on the bus.
  * Avoid interrupt mucking, just adjust the address for 4-byte access.

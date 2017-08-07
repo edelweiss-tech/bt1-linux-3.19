@@ -27,11 +27,11 @@
 /* Define DW_CHECK_ECRC to add checking CRC. */
 //#define DW_CHECK_ECRC
 
-#define PCIE_CFG_BASE                   0xBF052000
-#define PMU_BASE                        0xBF04D000
-/* Start enumerating the buses from 1 since IDT-switch oddly acts, when it's
+#define PCIE_CFG_BASE					0xBF052000
+#define PMU_BASE						0xBF04D000
+/* Start enumerating the busses from 1 since IDT-switch oddly acts, when it's
  * directly connected to the RC and has bus number 0 */
-#define PCIE_ROOT_BUS_NUM       1
+#define PCIE_ROOT_BUS_NUM      1
 
 #define	PHYS_PCIMEM_BASE_ADDR		(0x08000000)
 #define	PHYS_PCIMEM_LIMIT_ADDR		(0x18000000 - 1)
@@ -330,7 +330,8 @@
 
 /* GEN2_CTRL_OFF */
 #define NUM_OF_LANES_SHIFT			(8)		/* Predetermined Number of Lanes. */
-#define NUM_OF_LANES_MASK			0x1FF00
+#define NUM_OF_LANES_MASK			0x1F00
+#define DIRECT_SPEED_CHANGE			(1 << 17)
 
 /* GEN3_EQ_CONTROL_OFF */
 #define GEN3_EQ_EVAL_2MS_DISABLE		(1 << 5)	/* Phase2_3 2 ms Timeout Disable. */
@@ -345,6 +346,9 @@
 #define PCIE_CAP_LINK_SPEED_GEN1		0x1
 #define PCIE_CAP_LINK_SPEED_GEN2		0x2
 #define PCIE_CAP_LINK_SPEED_GEN3		0x3
+#define PCIE_STA_LINK_TRAINING			0x8000000
+#define PCIE_STA_LINK_WIDTH_MASK		0x3f00000
+#define PCIE_STA_LINK_WIDTH_SHIFT		(20)
 
 /* IATU_VIEWPORT_OFF */
 #define REGION_DIR_SHIFT			(31)		/* Region Direction. */
@@ -376,6 +380,12 @@
 /* IATU_REGION_CTRL_2_OFF_OUTBOUND_0 */
 #define IATU_REGION_CTRL_2_OFF_OUTBOUND_0_REGION_EN	(1 << 31)
 
+/* PCIE_LINK_CONTROL2_LINK_STATUS2 */
+#define PCIE_LINK_CONTROL2_GEN_MASK		(0xF)
+#define PCIE_LINK_CONTROL2_GEN1			(1)
+#define PCIE_LINK_CONTROL2_GEN2			(2)
+#define PCIE_LINK_CONTROL2_GEN3			(3)
+
 /* PHY control registers. */
 #define PCIE_PHY_DWC_GLBL_PLL_CFG_0		(0x1c000)	/* PLL Global Configuration Register #0 */
 #define PCIE_PHY_DWC_GLBL_PLL_CFG_1		(0x1c001)	/* PLL Global Configuration Register #1 */
@@ -395,7 +405,7 @@
 #define PCIE_PHY_DWC_RX_PWR_CTRL_P2		(0x1c017)	/* RX Power Controls in Power State P2 */
 #define PCIE_PHY_DWC_TX_PWR_CTRL_P0_P0S		(0x1c018)	/* TX Power Controls in Power States P0 and POS */
 #define PCIE_PHY_DWC_TX_PWR_CTRL_P1_P2		(0x1c019)	/* TX Power Controls in Power States P1 and P2 */
-#define PCIE_PHY_DWC_GLBL_PWR_CTRL		(0x1c01a)	/* Global Power State Machine Control Override */
+#define PCIE_PHY_DWC_GLBL_PWR_CTRL		(0x1c01a)	/* Global Power State Machine Control Override */
 #define PCIE_PHY_DWC_RX_TXDIR_CTRL_0		(0x1c01d)	/* Far-end TX Direction Control Register #0 */
 #define PCIE_PHY_DWC_RX_TXDIR_CTRL_1		(0x1c01e)	/* Far-end TX Direction Control Register #1 */
 #define PCIE_PHY_DWC_RX_TXDIR_CTRL_2		(0x1c01f)	/* Far-end TX Direction Control Register #2 */
@@ -626,6 +636,11 @@
 #define PMU_PCIE_RSTC_NONSTICKY_RST	(1 << 11)	/* PCIe core nonsticky_rst_n reset control bit. */
 #define PMU_PCIE_RSTC_HOT_RESET		(1 << 12)	/* Hot Reset control bit. */
 #define PMU_PCIE_RSTC_REQ_RESET		(1 << 13)	/* PCIe core link_req_rst_not ready for reset signal status bit */
+#define PMU_PCIE_RSTC_SMLH_REQ_RST	(1 << 14)
+#define PMU_PCIE_RSTC_REQ_PHY_RST	(1 << 16)
+#define PMU_PCIE_RSTC_REQ_CORE_RST	(1 << 24)
+#define PMU_PCIE_RSTC_REQ_STICKY_RST	(1 << 26)
+#define PMU_PCIE_RSTC_REQ_NON_STICKY_RST (1 << 27)
 #define PMU_PCIE_RSTC_BRIDGE_FLUSH	(1 << 19)	/* PCIe AXI bridge bridge_flush_not signal status bit. */
 
 /* BK_PMU_PCIE_GENC */

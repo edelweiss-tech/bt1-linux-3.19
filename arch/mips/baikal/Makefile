@@ -26,3 +26,4 @@ obj-y				:= baikal-init.o baikal-int.o baikal-memory.o \
 
 obj-$(CONFIG_EARLY_PRINTK)	+= baikal-console.o
 obj-$(CONFIG_OF)		+= baikal-of.o
+obj-$(CONFIG_KEXEC)		+= baikal-kexec.o

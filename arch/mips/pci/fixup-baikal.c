@@ -21,6 +21,12 @@
 
 #include <linux/of_irq.h>
 #include <linux/of_pci.h>
+#include <linux/delay.h>
+
+#include "pci-baikal.h"
+
+#define LINK_RETRAIN_TIMEOUT HZ
+#define LINK_UP_TIMEOUT HZ
 
 #define NEC_VENDOR_ID		0x1033
 #define NEC_USB3_DEVID		0x0194
@@ -42,8 +48,8 @@ int pcibios_plat_dev_init(struct pci_dev *dev)
 
 
 	/* Enable the PCIe normal error reporting */
-	config = PCI_EXP_DEVCTL_CERE; /* Correctable Error Reporting */
-	config |= PCI_EXP_DEVCTL_NFERE; /* Non-Fatal Error Reporting */
+	config = PCI_EXP_DEVCTL_CERE;	/* Correctable Error Reporting */
+	config |= PCI_EXP_DEVCTL_NFERE;	/* Non-Fatal Error Reporting */
 	config |= PCI_EXP_DEVCTL_FERE;	/* Fatal Error Reporting */
 	config |= PCI_EXP_DEVCTL_URRE;	/* Unsupported Request */
 	pcie_capability_set_word(dev, PCI_EXP_DEVCTL, config);
@@ -54,9 +60,9 @@ int pcibios_plat_dev_init(struct pci_dev *dev)
 	if (pos) {
 		/* Clear Uncorrectable Error Status */
 		pci_read_config_dword(dev, pos + PCI_ERR_UNCOR_STATUS,
-				      &dconfig);
+				&dconfig);
 		pci_write_config_dword(dev, pos + PCI_ERR_UNCOR_STATUS,
-				       dconfig);
+				dconfig);
 		/* Enable reporting of all uncorrectable errors */
 		/* Uncorrectable Error Mask - turned on bits disable errors */
 		pci_write_config_dword(dev, pos + PCI_ERR_UNCOR_MASK, 0);
@@ -86,9 +92,9 @@ int pcibios_plat_dev_init(struct pci_dev *dev)
 		/* PCI_ERR_HEADER_LOG - Header Log Register (16 bytes) */
 		/* Report all errors to the root complex */
 		pci_write_config_dword(dev, pos + PCI_ERR_ROOT_COMMAND,
-				       PCI_ERR_ROOT_CMD_COR_EN |
-				       PCI_ERR_ROOT_CMD_NONFATAL_EN |
-				       PCI_ERR_ROOT_CMD_FATAL_EN);
+				PCI_ERR_ROOT_CMD_COR_EN |
+				PCI_ERR_ROOT_CMD_NONFATAL_EN |
+				PCI_ERR_ROOT_CMD_FATAL_EN);
 		/* Clear the Root status register */
 		pci_read_config_dword(dev, pos + PCI_ERR_ROOT_STATUS, &dconfig);
 		pci_write_config_dword(dev, pos + PCI_ERR_ROOT_STATUS, dconfig);
