@@ -345,6 +345,18 @@ config DTB_BAIKAL_FPGA
       Device tree for Baikal-T FPGA prototype.
       Simple device configuration.
 
+config DTB_TP_MITX2
+    bool "T-Platforms mITX2-series board"
+    help
+      Device tree for mITX2 series boards (for versions 2.x+)
+      based on Baikal-T1 SOC.
+
+config DTB_TP_PM_NIIR
+    bool "T-Platforms NIIR module and carrier board board"
+    help
+      Device tree for NIIR module and carrier board
+      based on Baikal-T1 SOC.
+
 help
   Select device tree for Baikal-T SOC based board
 endchoice
