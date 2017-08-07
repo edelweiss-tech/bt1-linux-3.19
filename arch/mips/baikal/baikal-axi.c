@@ -50,7 +50,6 @@ struct be_axi {
 #ifdef CONFIG_SYSFS
 static ssize_t show_count(struct device *dev, struct device_attribute *attr, char *buf)
 {
-	struct platform_device *pdev = to_platform_device(dev);
 	struct be_axi *axi = dev_get_drvdata(dev);
 
 	return scnprintf(buf, PAGE_SIZE, "%u\n", axi->count);
@@ -59,7 +58,6 @@ static DEVICE_ATTR(count, S_IWUSR | S_IRUGO, show_count, NULL);
 
 static ssize_t show_addr(struct device *dev, struct device_attribute *attr, char *buf)
 {
-	struct platform_device *pdev = to_platform_device(dev);
 	struct be_axi *axi = dev_get_drvdata(dev);
 
 	return scnprintf(buf, PAGE_SIZE, "%08llx\n", axi->addr);
@@ -68,7 +66,6 @@ static DEVICE_ATTR(addr, S_IWUSR | S_IRUGO, show_addr, NULL);
 
 static ssize_t show_type(struct device *dev, struct device_attribute *attr, char *buf)
 {
-	struct platform_device *pdev = to_platform_device(dev);
 	struct be_axi *axi = dev_get_drvdata(dev);
 
 	if (!axi->count)
@@ -85,7 +82,6 @@ static ssize_t show_test(struct device *dev, struct device_attribute *attr, char
 static ssize_t store_test(struct device *dev, struct device_attribute *attr,
                  const char *buf, size_t count)
 {
-	struct platform_device *pdev = to_platform_device(dev);
 	struct be_axi *axi = dev_get_drvdata(dev);
 
 	/* Dummy byte read */

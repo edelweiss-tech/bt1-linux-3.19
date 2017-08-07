@@ -44,7 +44,6 @@ struct be_apb {
 #ifdef CONFIG_SYSFS
 static ssize_t show_count(struct device *dev, struct device_attribute *attr, char *buf)
 {
-	struct platform_device *pdev = to_platform_device(dev);
 	struct be_apb *apb = dev_get_drvdata(dev);
 
 	return scnprintf(buf, PAGE_SIZE, "%u\n", apb->count);
@@ -53,7 +52,6 @@ static DEVICE_ATTR(errors, S_IWUSR | S_IRUGO, show_count, NULL);
 
 static ssize_t show_addr(struct device *dev, struct device_attribute *attr, char *buf)
 {
-	struct platform_device *pdev = to_platform_device(dev);
 	struct be_apb *apb = dev_get_drvdata(dev);
 
 	return scnprintf(buf, PAGE_SIZE, "%08x\n", apb->addr);
@@ -67,7 +65,6 @@ static ssize_t show_test(struct device *dev, struct device_attribute *attr, char
 static ssize_t store_test(struct device *dev, struct device_attribute *attr,
                  const char *buf, size_t count)
 {
-	struct platform_device *pdev = to_platform_device(dev);
 	struct be_apb *apb = dev_get_drvdata(dev);
 	/* Dummy write */
 	writel(0, apb->regs + BE_APB_FAULT_TEST);
