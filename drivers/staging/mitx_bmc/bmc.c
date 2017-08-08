@@ -87,7 +87,7 @@ pwroff_rq_poll_fn(void *data) {
       }
     }
     prev_ret = ret;
-    msleep(100);
+    msleep_interruptible(100);
   }
   do_exit(1);
   return 0;
@@ -179,9 +179,10 @@ static int mitx2_bmc_i2c_probe(struct i2c_client *client, const struct i2c_devic
   for (i=0;i<10;i++) {
     err = mitx2_bmc_validate(client);
     if (!err) {
+      dev_info(&client->dev, "BMC validated after %i tries\n", i);
       break;
     }
-    msleep(10);
+    msleep_interruptible(10);
   }
   if (err) {
     return err;
