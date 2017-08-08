@@ -1,7 +1,7 @@
 /*
  *  Baikal-T SOC platform support code.
  *
- *  Copyright (C) 2015-2017 Baikal Electronics JSC.
+ *  Copyright (C) 2015 Baikal Electronics.
  *
  *  This program is free software; you can distribute it and/or modify it
  *  under the terms of the GNU General Public License (Version 2) as
@@ -61,7 +61,7 @@ static struct pci_controller dw_controller = {
 	.io_resource	= &dw_io_resource,
 	.mem_resource	= &dw_mem_resource,
 	.bus_resource	= &dw_busn_resource,
-	.get_busno  = dw_pcie_get_busn,
+	.get_busno		= dw_pcie_get_busn,
 };
 
 #ifdef CONFIG_PCI_MSI
@@ -73,18 +73,18 @@ static int dw_aer_irq;
 #define PCIE_PHY_RETRIES	1000000
 #define PCIE_ERROR_VALUE	0xFFFFFFFF
 #define PHY_ALL_LANES		0xF
-#define PHY_LANE0			0x1
+#define PHY_LANE0		0x1
 
-#define OK					0
-#define ERROR				-1
-#define ERROR_MISMATCH1		0x0010
-#define ERROR_MISMATCH2		0x0020
-#define ERROR_MISMATCH3		0x0040
-#define ERROR_MISMATCH4		0x0080
-#define ERROR_MISMATCH5		0x0100
-#define ERROR_MISMATCH6		0x0200
-#define ERROR_MISMATCH7		0x0400
-#define ERROR_MISMATCH8		0x0800
+#define OK	0
+#define ERROR	-1
+#define ERROR_MISMATCH1         0x0010
+#define ERROR_MISMATCH2         0x0020
+#define ERROR_MISMATCH3         0x0040
+#define ERROR_MISMATCH4         0x0080
+#define ERROR_MISMATCH5         0x0100
+#define ERROR_MISMATCH6         0x0200
+#define ERROR_MISMATCH7         0x0400
+#define ERROR_MISMATCH8         0x0800
 
 /* Retrieve the secondary bus number of the RC */
 int dw_pcie_get_busn(void)
@@ -95,7 +95,6 @@ int dw_pcie_get_busn(void)
 void pci_dw_dma_init(void);
 
 void baikal_find_vga_mem_init(void);
-
 uint32_t dw_pcie_phy_read(uint32_t phy_addr)
 {
 	uint32_t reg;
@@ -112,14 +111,12 @@ uint32_t dw_pcie_phy_read(uint32_t phy_addr)
 		if (reg & BK_MGMT_CTRL_DONE) {
 			/* Read data register. */
 			reg = READ_PCIE_REG(PCIE_BK_MGMT_READ_DATA);
-			pr_debug("%s: phy_addr=0x%x val=0x%x\n", __func__, phy_addr, reg);
+      pr_debug("%s: phy_addr=0x%x val=0x%x\n", __FUNCTION__, phy_addr, reg);
 			return reg;
 		}
 	}
 
-	pr_err("%s: timeout expired for phy_addr=0x%x\n", __func__, phy_addr);
-
-	/* return error */
+	pr_err("%s: timeout expired for phy_addr=0x%x\n", __FUNCTION__, phy_addr);
 	return PCIE_ERROR_VALUE;
 }
 
@@ -128,7 +125,7 @@ uint32_t dw_pcie_phy_write(uint32_t phy_addr, uint32_t val)
 	uint32_t reg;
 	int i;
 
-	pr_debug("%s: phy_addr=0x%x val=0x%x\n", __func__, phy_addr, val);
+  pr_debug("%s: phy_addr=0x%x val=0x%x\n", __FUNCTION__, phy_addr, val);
 
 	/* Set line. */
 	WRITE_PCIE_REG(PCIE_BK_MGMT_SEL_LANE, PHY_ALL_LANES);
@@ -146,9 +143,7 @@ uint32_t dw_pcie_phy_write(uint32_t phy_addr, uint32_t val)
 		}
 	}
 
-	pr_err("%s: timeout expired for phy_addr=0x%x\n", __func__, phy_addr);
-
-	/* return error */
+	pr_debug("%s: timeout expired for phy_addr=0x%x\n", __FUNCTION__, phy_addr);
 	return PCIE_ERROR_VALUE;
 }
 
@@ -194,23 +189,20 @@ static int dw_init_pll(const unsigned int pmu_register)
 
 	return OK;
 }
-#endif /* CONFIG_MACH_BAIKAL_BFK */
+#endif/*CONFIG_MACH_BAIKAL_BFK*/
 
 int dw_pcie_init(void)
 {
 	volatile uint32_t reg;
 	int i, st = 0;
-	uint32_t pmu_pcie_rstc_mask = 0;
+  uint32_t pmu_pcie_rstc_mask = 0;
 
 	/* PMU PCIe init. */
 
-#ifdef CONFIG_MACH_BAIKAL_BFK
-
-    /* Init PCIe PLL only for Baikal-T CPU  */
+#ifdef CONFIG_MACH_BAKAL_BFK
 	/* 1., 2. Start BK_PMU_PCIEPLL_CTL. */
 	dw_init_pll(BK_PMU_PCIEPLL_CTL);
-
-#endif /* CONFIG_MACH_BAIKAL_BFK */
+#endif/*CONFIG_MACH_BAKAL_BFK*/
 
 	/* 3. Read value of BK_PMU_AXI_PCIE_M_CTL, set EN bit. */
 	reg = READ_PMU_REG(BK_PMU_AXI_PCIE_M_CTL);
@@ -222,120 +214,25 @@ int dw_pcie_init(void)
 	reg |= PMU_AXI_PCIE_S_CTL_EN;
 	WRITE_PMU_REG(BK_PMU_AXI_PCIE_S_CTL, reg);
 
-#ifndef CONFIG_BAIKAL_DISABLE_PCIE_RESET
 	/*
-	 * 5. Manage RESET* bits
-	 * (PHY_RESET, PIPE_RESET, CORE_RST, PWR_RST, STICKY_RST, NONSTICKY_RST, HOT_RESET)
+	 * 5. Read value of BK_PMU_PCIE_RSTC, set bits: PHY_RESET,
+	 * PIPE_RESET, CORE_RST, PWR_RST, STICKY_RST, NONSTICKY_RST, HOT_RESET.
 	 */
-	/* PMU_PCIE_RSTC_HOT_RESET */
-	/*
 	reg = READ_PMU_REG(BK_PMU_PCIE_RSTC);
-	printk(" - KD: mips: pci-baikal.c: dw_pcie_init [4.]: kexec debug: PMU_PCIE_RSTC_HOT_RESET\n");
-	reg |= PMU_PCIE_RSTC_HOT_RESET;
-	WRITE_PMU_REG(BK_PMU_PCIE_RSTC, reg);
-	usleep_range(1, 10);
-	reg = READ_PMU_REG(BK_PMU_PCIE_RSTC);
-	reg &= ~PMU_PCIE_RSTC_HOT_RESET;
-	WRITE_PMU_REG(BK_PMU_PCIE_RSTC, reg);
-	*/
-
-	/* PMU_PCIE_RSTC_REQ_RESET ---> PMU_PCIE_RSTC_PHY_RESET */
-	reg = READ_PMU_REG(BK_PMU_PCIE_RSTC);
-	if ( reg & PMU_PCIE_RSTC_REQ_RESET ) {
-		reg |= PMU_PCIE_RSTC_PHY_RESET;
-		WRITE_PMU_REG(BK_PMU_PCIE_RSTC, reg);
-		usleep_range(10, 20);
-		reg = READ_PMU_REG(BK_PMU_PCIE_RSTC);
-		reg &= ~PMU_PCIE_RSTC_PHY_RESET;
-		WRITE_PMU_REG(BK_PMU_PCIE_RSTC, reg);
-	}
-
-	/* PMU_PCIE_RSTC_REQ_PHY_RST ---> PMU_PCIE_RSTC_PHY_RESET */
-	reg = READ_PMU_REG(BK_PMU_PCIE_RSTC);
-	if ( reg & PMU_PCIE_RSTC_REQ_PHY_RST ) {
-		reg |= PMU_PCIE_RSTC_PHY_RESET;
-		WRITE_PMU_REG(BK_PMU_PCIE_RSTC, reg);
-		usleep_range(10, 20);
-		reg = READ_PMU_REG(BK_PMU_PCIE_RSTC);
-		reg &= ~PMU_PCIE_RSTC_PHY_RESET;
-		WRITE_PMU_REG(BK_PMU_PCIE_RSTC, reg);
-	}
-
-	/* PMU_PCIE_RSTC_REQ_CORE_RST ---> PMU_PCIE_RSTC_CORE_RST */
-	reg = READ_PMU_REG(BK_PMU_PCIE_RSTC);
-	if ( reg & PMU_PCIE_RSTC_REQ_CORE_RST ) {
-		reg |= PMU_PCIE_RSTC_CORE_RST;
-		WRITE_PMU_REG(BK_PMU_PCIE_RSTC, reg);
-		usleep_range(10, 20);
-		reg = READ_PMU_REG(BK_PMU_PCIE_RSTC);
-		reg &= ~PMU_PCIE_RSTC_CORE_RST;
-		WRITE_PMU_REG(BK_PMU_PCIE_RSTC, reg);
-	}
-
-	/* PMU_PCIE_RSTC_REQ_STICKY_RST ---> PMU_PCIE_RSTC_STICKY_RST */
-	reg = READ_PMU_REG(BK_PMU_PCIE_RSTC);
-	if ( reg & PMU_PCIE_RSTC_REQ_STICKY_RST ) {
-		reg |= PMU_PCIE_RSTC_STICKY_RST;
-		WRITE_PMU_REG(BK_PMU_PCIE_RSTC, reg);
-		usleep_range(10, 20);
-		reg = READ_PMU_REG(BK_PMU_PCIE_RSTC);
-		reg &= ~PMU_PCIE_RSTC_STICKY_RST;
-		WRITE_PMU_REG(BK_PMU_PCIE_RSTC, reg);
-	}
-
-	/* PMU_PCIE_RSTC_REQ_NON_STICKY_RST ---> PMU_PCIE_RSTC_NONSTICKY_RST */
-	reg = READ_PMU_REG(BK_PMU_PCIE_RSTC);
-	if ( reg & PMU_PCIE_RSTC_REQ_NON_STICKY_RST ) {
-		reg |= PMU_PCIE_RSTC_NONSTICKY_RST;
-		WRITE_PMU_REG(BK_PMU_PCIE_RSTC, reg);
-		usleep_range(10, 20);
-		reg = READ_PMU_REG(BK_PMU_PCIE_RSTC);
-		reg &= ~PMU_PCIE_RSTC_NONSTICKY_RST;
-		WRITE_PMU_REG(BK_PMU_PCIE_RSTC, reg);
-	}
-
-	/* 5.1 set & clear individual bits */
-	pmu_pcie_rstc_mask = 0;
-	/*
-	reg = READ_PMU_REG(BK_PMU_PCIE_RSTC);
-	if ( reg & PMU_PCIE_RSTC_REQ_RESET )
+	if (reg & PMU_PCIE_RSTC_REQ_PHY_RST)
 		pmu_pcie_rstc_mask |= PMU_PCIE_RSTC_PHY_RESET;
-	if ( reg & PMU_PCIE_RSTC_REQ_PHY_RST )
-		pmu_pcie_rstc_mask |= PMU_PCIE_RSTC_PHY_RESET;
-	if ( reg & PMU_PCIE_RSTC_REQ_CORE_RST )
+	if (reg & PMU_PCIE_RSTC_REQ_CORE_RST)
 		pmu_pcie_rstc_mask |= PMU_PCIE_RSTC_CORE_RST;
-	if ( reg & PMU_PCIE_RSTC_REQ_STICKY_RST )
+	if (reg & PMU_PCIE_RSTC_REQ_STICKY_RST)
 		pmu_pcie_rstc_mask |= PMU_PCIE_RSTC_STICKY_RST;
-	if ( reg & PMU_PCIE_RSTC_REQ_NON_STICKY_RST )
+	if (reg & PMU_PCIE_RSTC_REQ_NON_STICKY_RST)
 		pmu_pcie_rstc_mask |= PMU_PCIE_RSTC_NONSTICKY_RST;
-	if (pmu_pcie_rstc_mask) {
-		reg |= pmu_pcie_rstc_mask;
-		WRITE_PMU_REG(BK_PMU_PCIE_RSTC, reg);
-		usleep_range(10, 20);
-		reg = READ_PMU_REG(BK_PMU_PCIE_RSTC);
-		reg &= ~pmu_pcie_rstc_mask;
-		WRITE_PMU_REG(BK_PMU_PCIE_RSTC, reg);
-	}
-	*/
-
-	/* 5.2 set & clear PMU_PCIE_RSTC_PWR_RST */
-	reg = READ_PMU_REG(BK_PMU_PCIE_RSTC);
-	reg |= PMU_PCIE_RSTC_PWR_RST;
-	WRITE_PMU_REG(BK_PMU_PCIE_RSTC, reg);
+	WRITE_PMU_REG(BK_PMU_PCIE_RSTC, reg | pmu_pcie_rstc_mask);
 	usleep_range(10, 20);
 	reg = READ_PMU_REG(BK_PMU_PCIE_RSTC);
-	reg &= ~PMU_PCIE_RSTC_PWR_RST;
+	reg &= ~pmu_pcie_rstc_mask;
 	WRITE_PMU_REG(BK_PMU_PCIE_RSTC, reg);
-#endif/*CONFIG_BAIKAL_DISABLE_PCIE_RESET*/
-
-	/* 5.3 set & clear PMU_PCIE_RSTC_PIPE_RESET */
-	reg = READ_PMU_REG(BK_PMU_PCIE_RSTC);
-	reg |= PMU_PCIE_RSTC_PIPE_RESET;
-	WRITE_PMU_REG(BK_PMU_PCIE_RSTC, reg);
-	usleep_range(10, 20);
-	reg = READ_PMU_REG(BK_PMU_PCIE_RSTC);
-	reg &= ~PMU_PCIE_RSTC_PIPE_RESET;
-	WRITE_PMU_REG(BK_PMU_PCIE_RSTC, reg);
+	printk("pci_init: PCIE_RSTC after reset: %08x\n", reg);
 
 	/* 3.1 Set DBI2 mode, dbi2_cs = 0x1 */
 	reg = READ_PMU_REG(BK_PMU_PCIE_GENC);
@@ -382,7 +279,7 @@ int dw_pcie_init(void)
 		PMU_PCIE_RSTC_STICKY_RST | PMU_PCIE_RSTC_NONSTICKY_RST | PMU_PCIE_RSTC_HOT_RESET);
 	WRITE_PMU_REG(BK_PMU_PCIE_RSTC, reg);
 
-	pr_info("%s: DEV_ID_VEND_ID=0x%x CLASS_CODE_REV_ID=0x%x\n", __func__,
+	pr_info("%s: DEV_ID_VEND_ID=0x%x CLASS_CODE_REV_ID=0x%x\n", __FUNCTION__,
 		READ_PCIE_REG(PCIE_TYPE1_DEV_ID_VEND_ID_REG), READ_PCIE_REG(PCIE_TYPE1_CLASS_CODE_REV_ID_REG));
 
 	/* 5. Set the fast mode. */
@@ -410,7 +307,6 @@ int dw_pcie_init(void)
 	reg = READ_PCIE_REG(PCIE_GEN2_CTRL_OFF);
 	reg &= ~NUM_OF_LANES_MASK;
 	reg |= (0x4 << NUM_OF_LANES_SHIFT);
-	//reg |= DIRECT_SPEED_CHANGE; // also force Directed Speed Change
 	WRITE_PCIE_REG(PCIE_GEN2_CTRL_OFF, reg);
 
 	reg = READ_PCIE_REG(PCIE_PORT_LINK_CTRL_OFF);
@@ -435,16 +331,16 @@ int dw_pcie_init(void)
 	dw_pcie_phy_write(PCIE_PHY_DWC_PCS_LANE_VMA_FINE_CTRL_1, 0);
 	dw_pcie_phy_write(PCIE_PHY_DWC_PCS_LANE_VMA_FINE_CTRL_2, 0);
 	dw_pcie_phy_write(PCIE_PHY_DWC_EQ_WAIT_TIME, 0xa);*/
-
-	/* 7.1 Disable entire DFE */
+  
+  /* 7.1 Disable entire DFE */
 	reg = dw_pcie_phy_read(PCIE_PHY_DWC_RX_LOOP_CTRL);
 	reg |= 0x2;
 	dw_pcie_phy_write(PCIE_PHY_DWC_RX_LOOP_CTRL, reg);
-
+  
 	//reg = dw_pcie_phy_read(PCIE_PHY_DWC_RX_AEQ_VALBBD_2);
-    reg = 0x3F;
-    dw_pcie_phy_write(PCIE_PHY_DWC_RX_AEQ_VALBBD_2, reg);
-
+  reg = 0x3F;
+  dw_pcie_phy_write(PCIE_PHY_DWC_RX_AEQ_VALBBD_2, reg);
+  
 	//reg = dw_pcie_phy_read(PCIE_PHY_DWC_RX_AEQ_VALBBD_1);
 	reg = 0;
 	dw_pcie_phy_write(PCIE_PHY_DWC_RX_AEQ_VALBBD_1, reg);
@@ -452,7 +348,7 @@ int dw_pcie_init(void)
 	/* Configure bus. */
 	reg = READ_PCIE_REG(PCIE_SEC_LAT_TIMER_SUB_BUS_SEC_BUS_PRI_BUS_REG);
 	reg &= 0xff000000;
-	reg |= (0x00ff0000 | (PCIE_ROOT_BUS_NUM << 8)); /* IDT PCI Bridge don't like the primary bus equals 0. */
+    reg |= (0x00ff0000 | (PCIE_ROOT_BUS_NUM << 8)); /* IDT PCI Bridge don't like the primary bus equals 0 */
 	WRITE_PCIE_REG(PCIE_SEC_LAT_TIMER_SUB_BUS_SEC_BUS_PRI_BUS_REG, reg);
 
 	/* Setup memory base. */
@@ -555,12 +451,12 @@ int dw_pcie_init(void)
 		}
 	}
 
-	pr_err("%s: PCIe error code = 0x%x\n", __func__, st);
+	pr_err("%s: PCIe error core = 0x%x\n", __FUNCTION__, st);
 
-	/* Check the speed is set in PCIE_LINK_CONTROL_LINK_STATUS_REG. */
+	/* Check that speed is set in PCIE_LINK_CONTROL_LINK_STATUS_REG. */
 	reg = READ_PCIE_REG(PCIE_LINK_CONTROL_LINK_STATUS_REG);
 	reg = ((reg & PCIE_CAP_LINK_SPEED_MASK) >> PCIE_CAP_LINK_SPEED_SHIFT);
-	pr_info("%s: PCIe link speed GEN%d\n", __func__, reg);
+	pr_info("%s: PCIe link speed GEN%d\n", __FUNCTION__, reg);
 
 	wmb();
 
@@ -572,13 +468,13 @@ void __init mips_pcibios_init(void)
 	struct pci_controller *controller;
 
 	if (dw_pcie_init()) {
-		pr_err("%s: Init DW PCI controller failed\n", __func__);
+		pr_err("%s: Init DW PCI controller failed\n", __FUNCTION__);
 		return;
 	}
 
 #ifdef CONFIG_PCI_MSI
 	if (dw_msi_init()) {
-		pr_err("%s: Init DW PCI MSI failed\n", __func__);
+		pr_err("%s: Init DW PCI MSI failed\n", __FUNCTION__);
 		return;
 	}
 #endif /* CONFIG_PCI_MSI */
@@ -590,7 +486,7 @@ void __init mips_pcibios_init(void)
 
 	iomem_resource.end &= 0xfffffffffULL;
 	ioport_resource.end = controller->io_resource->end;
-	controller->io_map_base = IO_BASE;
+    controller->io_map_base = IO_BASE;
 	controller->io_offset = 0;
 	register_pci_controller(controller);
 
@@ -639,29 +535,27 @@ static int dw_pci_drv_probe(struct platform_device *pdev)
 		return -ENXIO;
 	}
 
-	dev_info(&pdev->dev, "DW PCIe driver successfully loaded.\n");
-	dev_info(&pdev->dev, "MSI IRQ:%d   AER IRQ:%d\n", dw_msi_irq, dw_aer_irq);
-
-	/* Return success */
-	return 0;
+  dev_info(&pdev->dev, "DW PCIe driver successfully loaded.\n");
+  dev_info(&pdev->dev, "MSI IRQ:%d   AER IRQ:%d\n", dw_msi_irq, dw_aer_irq);
+        return 0;
 }
 
 static int dw_pci_drv_remove(struct platform_device *pdev)
 {
 #ifdef CONFIG_PCI_MSI
-		/* Free IRQ resource */
-		free_irq(dw_msi_irq, pdev);
+        /* Free IRQ resource */
+        free_irq(dw_msi_irq, pdev);
 #endif /* CONFIG_PCI_MSI */
 
 	free_irq(dw_aer_irq, pdev);
 
-	/* Return success */
-	return 0;
+        /* Return success */
+        return 0;
 }
 
 #ifdef CONFIG_OF
 static const struct of_device_id dw_pci_of_match[] = {
-	{ .compatible = "be,baikal-pci", },
+  { .compatible = "be,baikal-pci", },
 	{ .compatible = "snps,dw-pci", },
 	{ /* sentinel */ }
 };
@@ -677,7 +571,7 @@ static struct platform_driver dw_pci_driver = {
 #ifdef CONFIG_OF
 		.of_match_table = of_match_ptr(dw_pci_of_match),
 #endif /* CONFIG_OF */
-		},
+        },
 };
 
 module_platform_driver(dw_pci_driver);
