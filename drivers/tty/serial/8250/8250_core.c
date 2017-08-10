@@ -1615,7 +1615,8 @@ int serial8250_handle_irq(struct uart_port *port, unsigned int iir)
 		 * On some systems we saw the timeout interrupt even when
 		 * there was no data ready.  Do a bogus read to clear it.
 		 */
-		(void) serial_port_in(port, UART_RX);
+		if (!up->dma)
+			(void) serial_port_in(port, UART_RX);
 	}
 	serial8250_modem_status(up);
 	if ((!up->dma || (up->dma && up->dma->tx_err)) &&
