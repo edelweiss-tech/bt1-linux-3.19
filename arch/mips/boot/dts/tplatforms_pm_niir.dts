@@ -41,6 +41,8 @@
 		ssi0 = &spi0;
 		ssi1 = &spi1;
 		ethernet0 = &gmac0;
+		ethernet1 = &gmac1;
+		mdio-gpio0 = &mdio0;
 /*		ethernet2 = &xgmac; */
 	};
 
@@ -143,6 +145,49 @@
 			clocks = <&sata_clk 0>;
 			clock-names = "sataclk";
 		};
+
+  	mdio0: be-mdio {
+			compatible = "be,mdio-gpio";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			mdc-pin = <&porta 9 GPIO_ACTIVE_HIGH>;
+			mdio-pin = <&porta 11 GPIO_ACTIVE_HIGH>;
+			clocks = <&gpio_clk 0>;
+			clock-names = "gpioclk";
+
+			mv_ch0:88X2222@0C {
+				compatible = "marvell,88x2222", "ethernet-phy-ieee802.3-c45";
+				reg = <0x0C>;
+				phy-mode = "xgmii";
+				mv,line-mode = <0>; /* 10GBASE-R (0x71) */
+				mv,host-mode = <0>; /* 10GBASE-R (0x71) */
+			};
+
+			mv_ch1:88X2222@0D {
+				compatible = "marvell,88x2222", "ethernet-phy-ieee802.3-c45";
+				reg = <0x0D>;
+				phy-mode = "xgmii";
+				mv,line-mode = <0>; /* 10GBASE-R (0x71) */
+				mv,host-mode = <0>; /* 10GBASE-R (0x71) */
+			};
+
+			mv_ch2:88X2222@0E {
+				compatible = "marvell,88x2222", "ethernet-phy-ieee802.3-c45";
+				reg = <0x0E>;
+				phy-mode = "xgmii";
+				mv,line-mode = <0>; /* 10GBASE-R (0x71) */
+				mv,host-mode = <0>; /* 10GBASE-R (0x71) */
+			};
+
+			mv_ch3:88X2222@0F {
+				compatible = "marvell,88x2222", "ethernet-phy-ieee802.3-c45";
+				reg = <0x0F>;
+				phy-mode = "xgmii";
+				mv,line-mode = <0>; /* 10GBASE-R (0x71) */
+				mv,host-mode = <0>; /* 10GBASE-R (0x71) */
+			};
+		};
+
 
 		gmac0: eth1@1F05E000 {
 			compatible = "be,dwmac", "snps,dwmac-3.710", "snps,dwmac";
