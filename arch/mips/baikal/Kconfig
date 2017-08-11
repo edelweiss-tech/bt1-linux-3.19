@@ -352,7 +352,7 @@ config DTB_TP_MITX2
       based on Baikal-T1 SOC.
 
 config DTB_TP_PM_NIIR
-    bool "T-Platforms NIIR module and carrier board board"
+    bool "T-Platforms NIIR module and carrier board"
     help
       Device tree for NIIR module and carrier board
       based on Baikal-T1 SOC.
