@@ -205,6 +205,13 @@
 			txd2-skew-ps = <0>;
 			txd3-skew-ps = <0>;
 			txc-skew-ps  = <0xff>;
+      vsc8531_0: ethernet-phy@0 {
+        compatible = "ethernet-phy-id0007.0570";
+        vsc8531,vddmac		= <1800>;
+        vsc8531,edge-slowdown	= <0>;
+        vsc8531,led-0-mode	= <1>;
+        vsc8531,led-1-mode	= <2>;
+      };
 		};
 
 		gmac1: eth2@1F060000 {
@@ -223,6 +230,13 @@
 			txd2-skew-ps = <0>;
 			txd3-skew-ps = <0>;
 			txc-skew-ps  = <0xff>;
+      vsc8531_1: ethernet-phy@1 {
+        compatible = "ethernet-phy-id0007.0570";
+        vsc8531,vddmac		= <1800>;
+        vsc8531,edge-slowdown	= <0>;
+        vsc8531,led-0-mode	= <1>;
+        vsc8531,led-1-mode	= <2>;
+      };
 		};
 
 		usb3: usb@1F04D050 {

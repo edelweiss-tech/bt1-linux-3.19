@@ -15,15 +15,15 @@
 #include <linux/netdevice.h>
 #include <dt-bindings/net/mscc-phy-vsc8531.h>
 
-enum rgmii_rx_clock_delay {
-	RGMII_RX_CLK_DELAY_0_2_NS = 0,
-	RGMII_RX_CLK_DELAY_0_8_NS = 1,
-	RGMII_RX_CLK_DELAY_1_1_NS = 2,
-	RGMII_RX_CLK_DELAY_1_7_NS = 3,
-	RGMII_RX_CLK_DELAY_2_0_NS = 4,
-	RGMII_RX_CLK_DELAY_2_3_NS = 5,
-	RGMII_RX_CLK_DELAY_2_6_NS = 6,
-	RGMII_RX_CLK_DELAY_3_4_NS = 7
+enum rgmii_clock_delay {
+	RGMII_CLK_DELAY_0_2_NS = 0,
+	RGMII_CLK_DELAY_0_8_NS = 1,
+	RGMII_CLK_DELAY_1_1_NS = 2,
+	RGMII_CLK_DELAY_1_7_NS = 3,
+	RGMII_CLK_DELAY_2_0_NS = 4,
+	RGMII_CLK_DELAY_2_3_NS = 5,
+	RGMII_CLK_DELAY_2_6_NS = 6,
+	RGMII_CLK_DELAY_3_4_NS = 7
 };
 
 /* Microsemi VSC85xx PHY registers */
@@ -78,6 +78,8 @@ enum rgmii_rx_clock_delay {
 #define MSCC_PHY_RGMII_CNTL		  20
 #define RGMII_RX_CLK_DELAY_MASK		  0x0070
 #define RGMII_RX_CLK_DELAY_POS		  4
+#define RGMII_TX_CLK_DELAY_MASK		  0x0007
+#define RGMII_TX_CLK_DELAY_POS		  0
 
 #define MSCC_PHY_WOL_LOWER_MAC_ADDR	  21
 #define MSCC_PHY_WOL_MID_MAC_ADDR	  22
@@ -388,7 +390,7 @@ static int vsc85xx_edge_rate_magic_get(struct phy_device *phydev)
 
 	rc = of_property_read_u16(of_node, "vsc8531,vddmac", &vdd);
 	if (rc != 0)
-		vdd = MSCC_VDDMAC_3300;
+		vdd = MSCC_VDDMAC_1800;
 
 	rc = of_property_read_u8(of_node, "vsc8531,edge-slowdown", &sd);
 	if (rc != 0)
@@ -511,7 +513,9 @@ static int vsc85xx_default_config(struct phy_device *phydev)
 
 	reg_val = phy_read(phydev, MSCC_PHY_RGMII_CNTL);
 	reg_val &= ~(RGMII_RX_CLK_DELAY_MASK);
-	reg_val |= (RGMII_RX_CLK_DELAY_1_1_NS << RGMII_RX_CLK_DELAY_POS);
+	reg_val |= (RGMII_CLK_DELAY_1_7_NS << RGMII_RX_CLK_DELAY_POS);
+  reg_val &= ~(RGMII_TX_CLK_DELAY_MASK);
+	reg_val |= (RGMII_CLK_DELAY_1_7_NS << RGMII_TX_CLK_DELAY_POS);
 	phy_write(phydev, MSCC_PHY_RGMII_CNTL, reg_val);
 	rc = vsc85xx_phy_page_set(phydev, MSCC_PHY_PAGE_STANDARD);
 
