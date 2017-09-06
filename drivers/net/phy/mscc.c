@@ -635,6 +635,8 @@ static int vsc85xx_probe(struct phy_device *phydev)
 	int rate_magic;
 	int led_mode;
 
+  printk(KERN_INFO "vsc85xx_probe\n");
+
 	rate_magic = vsc85xx_edge_rate_magic_get(phydev);
 	if (rate_magic < 0)
 		return rate_magic;
