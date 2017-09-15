@@ -87,11 +87,11 @@ static int __init __get_reserved_region(unsigned long node,
 		if (size) {
 			add_memory_region(base, size, BOOT_MEM_RESERVED_PREF);
 			pr_info("Reserved memory: reserved region for node '%s': base 0x%08x, size %ld MiB\n",
-              uname, (uint32_t)base, (unsigned long)size / SZ_1M);
-		}
-		else
+				uname, (uint32_t)base, (unsigned long)size / SZ_1M);
+		} else {
 			pr_info("Reserved memory: failed to reserve memory for node '%s': base %pa, size %ld MiB\n",
-              uname, &base, (unsigned long)size / SZ_1M);
+				uname, &base, (unsigned long)size / SZ_1M);
+		}
 
 		len -= t_len;
 	}
