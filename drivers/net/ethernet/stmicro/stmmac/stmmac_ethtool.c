@@ -380,7 +380,7 @@ static int stmmac_ethtool_setsettings(struct net_device *dev,
 		return 0;
 	}
 
-	return phy_ethtool_sset(phy, cmd);;
+	return phy_ethtool_sset(phy, cmd);
 }
 
 static u32 stmmac_ethtool_getmsglevel(struct net_device *dev)
