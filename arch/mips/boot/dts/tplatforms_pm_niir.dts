@@ -385,6 +385,13 @@
 			clocks = <&i2c0_clk 0>;
 			clock-names = "i2c0clk";
 
+      mbexpander: gpio@20 {
+        compatible = "nxp,pca9535";
+        reg = <0x20>;
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_pca9505>;
+      };
+
 		};
 
 		i2c1: i2c1@1F047000 {
@@ -407,11 +414,6 @@
 				compatible = "atmel,24c02";
 				pagesize = <16>;
 				reg = <0x50>;
-			};
-
-			rtc@51 {
-				compatible = "nxp,pcf2129";
-				reg = <0x51>;
 			};
 
       bmc@8 {
@@ -459,7 +461,16 @@
 			interrupts = <GIC_SHARED 41 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&spi1_clk 0>;
 			clock-names = "spi1clk";
-			num-cs = <0>;
+			num-cs = <1>;
+
+      flash: n25q128@0 {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        compatible = "mciron,n25q128a11";
+        reg = <0>;
+        spi-max-frequency = <1000000>;
+      };
+  
     };
     
 		gpio: gpio@1F044000 {
