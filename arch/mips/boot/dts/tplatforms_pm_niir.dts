@@ -385,11 +385,11 @@
 			clocks = <&i2c0_clk 0>;
 			clock-names = "i2c0clk";
 
-      mbexpander: gpio@20 {
+      mbexpander: gpioexp@20 {
         compatible = "nxp,pca9535";
         reg = <0x20>;
-        pinctrl-names = "default";
-        pinctrl-0 = <&pinctrl_pca9505>;
+        gpio-controller;
+        #gpio-cells = <2>;
       };
 
 		};
@@ -463,12 +463,18 @@
 			clock-names = "spi1clk";
 			num-cs = <1>;
 
-      flash: n25q128@0 {
+      /* spidev1@0 { */
+      /*   compatible = "spidev"; */
+      /*   spi-max-frequency = <1000000>; */
+      /*   reg = <0>; */
+      /* }; */
+
+      flash: w25q128@0 {
         #address-cells = <1>;
         #size-cells = <1>;
-        compatible = "mciron,n25q128a11";
+        compatible = "winbond,w25q128";
         reg = <0>;
-        spi-max-frequency = <1000000>;
+        spi-max-frequency = <15000000>;
       };
   
     };
