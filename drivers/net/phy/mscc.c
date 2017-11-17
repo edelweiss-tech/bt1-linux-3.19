@@ -112,6 +112,7 @@ struct vsc8531_private {
   u8 mdix_ctrl;
 };
 
+#undef CONFIG_OF_MDIO
 #ifdef CONFIG_OF_MDIO
 struct vsc8531_edge_rate_table {
 	u16 vddmac;
@@ -430,7 +431,7 @@ static int vsc85xx_dt_led_mode_get(struct phy_device *phydev,
 #else
 static int vsc85xx_edge_rate_magic_get(struct phy_device *phydev)
 {
-	return 0;
+	return 7;
 }
 
 static int vsc85xx_dt_led_mode_get(struct phy_device *phydev,
@@ -450,6 +451,7 @@ static int vsc85xx_edge_rate_cntl_set(struct phy_device *phydev, u8 edge_rate)
 	rc = vsc85xx_phy_page_set(phydev, MSCC_PHY_PAGE_EXTENDED_2);
 	if (rc != 0)
 		goto out_unlock;
+
 	reg_val = phy_read(phydev, MSCC_PHY_WOL_MAC_CONTROL);
 	reg_val &= ~(EDGE_RATE_CNTL_MASK);
 	reg_val |= (edge_rate << EDGE_RATE_CNTL_POS);
@@ -515,7 +517,7 @@ static int vsc85xx_default_config(struct phy_device *phydev)
 	reg_val &= ~(RGMII_RX_CLK_DELAY_MASK);
 	reg_val |= (RGMII_CLK_DELAY_1_7_NS << RGMII_RX_CLK_DELAY_POS);
   reg_val &= ~(RGMII_TX_CLK_DELAY_MASK);
-	reg_val |= (RGMII_CLK_DELAY_1_7_NS << RGMII_TX_CLK_DELAY_POS);
+	reg_val |= (RGMII_CLK_DELAY_0_8_NS << RGMII_TX_CLK_DELAY_POS);
 	phy_write(phydev, MSCC_PHY_RGMII_CNTL, reg_val);
 	rc = vsc85xx_phy_page_set(phydev, MSCC_PHY_PAGE_STANDARD);
 
@@ -525,6 +527,7 @@ out_unlock:
 	return rc;
 }
 
+#ifdef TUNABLE
 static int vsc85xx_get_tunable(struct phy_device *phydev,
 			       struct ethtool_tunable *tuna, void *data)
 {
@@ -547,6 +550,7 @@ static int vsc85xx_set_tunable(struct phy_device *phydev,
 		return -EINVAL;
 	}
 }
+#endif
 
 static int vsc85xx_config_init(struct phy_device *phydev)
 {
@@ -608,7 +612,7 @@ static int vsc85xx_config_intr(struct phy_device *phydev)
 static int vsc85xx_config_aneg(struct phy_device *phydev)
 {
 	int rc;
-  struct vsc8531_private *vsc8531 = phydev->priv;
+	struct vsc8531_private *vsc8531 = phydev->priv;
 
 	rc = vsc85xx_mdix_set(phydev, vsc8531->mdix_ctrl);
 	if (rc < 0)
@@ -635,8 +639,6 @@ static int vsc85xx_probe(struct phy_device *phydev)
 	int rate_magic;
 	int led_mode;
 
-  printk(KERN_INFO "vsc85xx_probe\n");
-
 	rate_magic = vsc85xx_edge_rate_magic_get(phydev);
 	if (rate_magic < 0)
 		return rate_magic;
@@ -651,13 +653,13 @@ static int vsc85xx_probe(struct phy_device *phydev)
 
 	/* LED[0] and LED[1] mode */
 	led_mode = vsc85xx_dt_led_mode_get(phydev, "vsc8531,led-0-mode",
-					   VSC8531_LINK_1000_ACTIVITY);
+                                     VSC8531_LINK_1000_ACTIVITY);
 	if (led_mode < 0)
 		return led_mode;
 	vsc8531->led_0_mode = led_mode;
 
 	led_mode = vsc85xx_dt_led_mode_get(phydev, "vsc8531,led-1-mode",
-					   VSC8531_LINK_100_ACTIVITY);
+                                     VSC8531_LINK_100_ACTIVITY);
 	if (led_mode < 0)
 		return led_mode;
 	vsc8531->led_1_mode = led_mode;
@@ -685,8 +687,10 @@ static struct phy_driver vsc85xx_driver[] = {
 	.probe		= &vsc85xx_probe,
 	.set_wol	= &vsc85xx_wol_set,
 	.get_wol	= &vsc85xx_wol_get,
-	/* .get_tunable	= &vsc85xx_get_tunable, */
-	/* .set_tunable	= &vsc85xx_set_tunable, */
+#ifdef TUNABLE
+	.get_tunable	= &vsc85xx_get_tunable,
+	.set_tunable	= &vsc85xx_set_tunable,
+#endif
 },
 {
 	.phy_id		= PHY_ID_VSC8531,
@@ -706,8 +710,10 @@ static struct phy_driver vsc85xx_driver[] = {
 	.probe		= &vsc85xx_probe,
 	.set_wol	= &vsc85xx_wol_set,
 	.get_wol	= &vsc85xx_wol_get,
-	/* .get_tunable	= &vsc85xx_get_tunable, */
-	/* .set_tunable	= &vsc85xx_set_tunable, */
+#ifdef TUNABLE
+	.get_tunable	= &vsc85xx_get_tunable,
+	.set_tunable	= &vsc85xx_set_tunable,
+#endif
 },
 {
 	.phy_id		= PHY_ID_VSC8540,
@@ -727,8 +733,10 @@ static struct phy_driver vsc85xx_driver[] = {
 	.probe		= &vsc85xx_probe,
 	.set_wol	= &vsc85xx_wol_set,
 	.get_wol	= &vsc85xx_wol_get,
-	/* .get_tunable	= &vsc85xx_get_tunable, */
-	/* .set_tunable	= &vsc85xx_set_tunable, */
+#ifdef TUNABLE
+	.get_tunable	= &vsc85xx_get_tunable,
+	.set_tunable	= &vsc85xx_set_tunable,
+#endif
 },
 {
 	.phy_id		= PHY_ID_VSC8541,
@@ -748,8 +756,10 @@ static struct phy_driver vsc85xx_driver[] = {
 	.probe		= &vsc85xx_probe,
 	.set_wol	= &vsc85xx_wol_set,
 	.get_wol	= &vsc85xx_wol_get,
-	/* .get_tunable	= &vsc85xx_get_tunable, */
-	/* .set_tunable	= &vsc85xx_set_tunable, */
+#ifdef TUNABLE
+	.get_tunable	= &vsc85xx_get_tunable,
+	.set_tunable	= &vsc85xx_set_tunable,
+#endif
 }
 
 };
