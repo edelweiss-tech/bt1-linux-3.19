@@ -35,13 +35,64 @@ struct m25p {
 	u8			command[MAX_CMD_SIZE];
 };
 
+static int spi_write_then_read_proper(struct spi_device *spi, const void *txbuf, unsigned n_tx, void *rxbuf, unsigned n_rx)
+{
+  //static DEFINE_MUTEX(lock);
+
+  int status;
+  struct spi_message message;
+  struct spi_transfer x;
+  char *xrx;
+  char *rx = rxbuf;
+
+	u8			*local_buf;
+
+	/* Use preallocated DMA-safe buffer if we can.  We can't avoid
+	 * copying here, (as a pure convenience thing), but we can
+	 * keep heap costs out of the hot path unless someone else is
+	 * using the pre-allocated buffer or the transfer is too large.
+	 */
+  local_buf = kmalloc(n_tx + n_rx, GFP_KERNEL | GFP_DMA);
+  if (!local_buf)
+    return -ENOMEM;
+
+	spi_message_init(&message);
+	memset(&x, 0, sizeof(x));
+	if (n_tx && n_rx) {
+		x.len = n_tx+n_rx;
+	} else if (n_tx && !(n_rx)) {
+    x.len = n_tx;
+  } else if (! n_tx && n_rx) {
+    x.len = n_rx;
+  } else {
+    return 0;
+  }
+  spi_message_add_tail(&x, &message);
+
+	memcpy(local_buf, txbuf, n_tx);
+	x.tx_buf = local_buf;
+	x.rx_buf = local_buf + n_tx;
+  xrx = x.rx_buf;
+
+	/* do the i/o */
+	status = spi_sync(spi, &message);
+
+	if (status == 0)
+		memcpy(rxbuf, x.rx_buf+1, n_rx-1);
+  printk(KERN_INFO "rxbuf: 0x%02x, 0x%02x, 0x%02x; x.rx_buf: 0x%02x, 0x%02x, 0x%02x; local_buf: 0x%02x, 0x%02x, 0x%02x; n_rx: %i\n", rx[0], rx[1], rx[2], xrx[0], xrx[1], xrx[2], local_buf[0], local_buf[1], local_buf[2], n_rx);
+
+  kfree(local_buf);
+
+	return status;
+}
+
 static int m25p80_read_reg(struct spi_nor *nor, u8 code, u8 *val, int len)
 {
 	struct m25p *flash = nor->priv;
 	struct spi_device *spi = flash->spi;
 	int ret;
 
-	ret = spi_write_then_read(spi, &code, 1, val, len);
+	ret = spi_write_then_read_proper(spi, &code, 1, val, len);
 	if (ret < 0)
 		dev_err(&spi->dev, "error %d reading %x\n", ret, code);
 
