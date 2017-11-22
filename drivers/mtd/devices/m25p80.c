@@ -37,11 +37,10 @@ struct m25p {
 
 static int spi_write_then_read_single_transfer(struct spi_device *spi, const void *txbuf, unsigned n_tx, void *rxbuf, unsigned n_rx)
 {
-  int status;
-  struct spi_message message;
-  struct spi_transfer x;
-  char *xrx;
-  char *rx = rxbuf;
+	int status;
+	struct spi_message message;
+	struct spi_transfer x;
+	char *xrx;
 
 	u8			*local_buf;
 
@@ -50,27 +49,27 @@ static int spi_write_then_read_single_transfer(struct spi_device *spi, const voi
 	 * keep heap costs out of the hot path unless someone else is
 	 * using the pre-allocated buffer or the transfer is too large.
 	 */
-  local_buf = kmalloc(n_tx + n_rx, GFP_KERNEL | GFP_DMA);
-  if (!local_buf)
-    return -ENOMEM;
+	local_buf = kmalloc(n_tx + n_rx, GFP_KERNEL | GFP_DMA);
+	if (!local_buf)
+		return -ENOMEM;
 
 	spi_message_init(&message);
 	memset(&x, 0, sizeof(x));
 	if (n_tx && n_rx) {
 		x.len = n_tx+n_rx;
 	} else if (n_tx && !(n_rx)) {
-    x.len = n_tx;
-  } else if (! n_tx && n_rx) {
-    x.len = n_rx;
-  } else {
-    return 0;
-  }
-  spi_message_add_tail(&x, &message);
+		x.len = n_tx;
+	} else if (! n_tx && n_rx) {
+		x.len = n_rx;
+	} else {
+		return 0;
+	}
+	spi_message_add_tail(&x, &message);
 
 	memcpy(local_buf, txbuf, n_tx);
 	x.tx_buf = local_buf;
 	x.rx_buf = local_buf + n_tx;
-  xrx = x.rx_buf;
+	xrx = x.rx_buf;
 
 	/* do the i/o */
 	status = spi_sync(spi, &message);
@@ -78,7 +77,7 @@ static int spi_write_then_read_single_transfer(struct spi_device *spi, const voi
 	if (status == 0)
 		memcpy(rxbuf, x.rx_buf+1, n_rx-1);
 
-  kfree(local_buf);
+	kfree(local_buf);
 
 	return status;
 }
