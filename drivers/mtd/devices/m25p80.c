@@ -35,10 +35,8 @@ struct m25p {
 	u8			command[MAX_CMD_SIZE];
 };
 
-static int spi_write_then_read_proper(struct spi_device *spi, const void *txbuf, unsigned n_tx, void *rxbuf, unsigned n_rx)
+static int spi_write_then_read_single_transfer(struct spi_device *spi, const void *txbuf, unsigned n_tx, void *rxbuf, unsigned n_rx)
 {
-  //static DEFINE_MUTEX(lock);
-
   int status;
   struct spi_message message;
   struct spi_transfer x;
@@ -79,7 +77,6 @@ static int spi_write_then_read_proper(struct spi_device *spi, const void *txbuf,
 
 	if (status == 0)
 		memcpy(rxbuf, x.rx_buf+1, n_rx-1);
-  printk(KERN_INFO "rxbuf: 0x%02x, 0x%02x, 0x%02x; x.rx_buf: 0x%02x, 0x%02x, 0x%02x; local_buf: 0x%02x, 0x%02x, 0x%02x; n_rx: %i\n", rx[0], rx[1], rx[2], xrx[0], xrx[1], xrx[2], local_buf[0], local_buf[1], local_buf[2], n_rx);
 
   kfree(local_buf);
 
@@ -92,7 +89,7 @@ static int m25p80_read_reg(struct spi_nor *nor, u8 code, u8 *val, int len)
 	struct spi_device *spi = flash->spi;
 	int ret;
 
-	ret = spi_write_then_read_proper(spi, &code, 1, val, len);
+	ret = spi_write_then_read_single_transfer(spi, &code, 1, val, len);
 	if (ret < 0)
 		dev_err(&spi->dev, "error %d reading %x\n", ret, code);
 
@@ -340,7 +337,7 @@ static const struct spi_device_id m25p_ids[] = {
 	{"w25x10"},	{"w25x20"},	{"w25x40"},	{"w25x80"},
 	{"w25x16"},	{"w25x32"},	{"w25q32"},	{"w25q32dw"},
 	{"w25x64"},	{"w25q64"},	{"w25q80"},	{"w25q80bl"},
-	{"w25q128"},	{"w25q256"},	{"cat25c11"},
+	{"w25q128"},	{"w25q128a"},	{"w25q256"},	{"cat25c11"},
 	{"cat25c03"},	{"cat25c09"},	{"cat25c17"},	{"cat25128"},
 	{ },
 };
