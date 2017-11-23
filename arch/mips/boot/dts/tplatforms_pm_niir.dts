@@ -434,7 +434,7 @@
         //gpios = <&porta 15 GPIO_ACTIVE_LOW
         //&porta 15 GPIO_ACTIVE_HIGH>;
         voltage-ranges = <2000 3600>;
-        spi-max-frequency = <1000000>;
+        spi-max-frequency = <15000000>;
         //interrupts = <GIC_SHARED 19 IRQ_TYPE_LEVEL_HIGH>;
       };
 		};
