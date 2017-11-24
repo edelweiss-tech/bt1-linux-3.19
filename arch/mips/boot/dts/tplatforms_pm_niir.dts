@@ -449,14 +449,11 @@
 			clock-names = "spi1clk";
 			num-cs = <1>;
 
-      flash: w25q128a@0 {
-        #address-cells = <1>;
-        #size-cells = <1>;
-        compatible = "winbond,w25q128a";
-        reg = <0>;
+      spidev1@0 {
+        compatible = "spidev";
         spi-max-frequency = <15000000>;
+        reg = <0>;
       };
-  
     };
     
 		gpio: gpio@1F044000 {
