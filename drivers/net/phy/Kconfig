@@ -148,6 +148,11 @@ config MICREL_PHY
 	---help---
 	  Supports the KSZ9021, VSC8201, KS8001 PHYs.
 
+config MICROSEMI_PHY
+	tristate "Microsemi PHYs"
+	---help---
+	  Currently supports VSC8530, VSC8531, VSC8540 and VSC8541 PHYs
+
 config DW_PHY
         tristate "Driver for DesignWire PHY"
         ---help---

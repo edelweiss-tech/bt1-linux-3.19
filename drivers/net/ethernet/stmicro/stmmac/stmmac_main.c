@@ -1719,6 +1719,7 @@ static int stmmac_hw_setup(struct net_device *dev, bool init_ptp)
 		return ret;
 	}
 
+	phy_init_hw(priv->phydev);
 	/* Copy the MAC addr into the HW  */
 	priv->hw->mac->set_umac_addr(priv->hw, dev->dev_addr, 0);
 
