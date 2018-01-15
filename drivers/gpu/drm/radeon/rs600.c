@@ -643,8 +643,15 @@ uint64_t rs600_gart_get_page_entry(uint64_t addr, uint32_t flags)
 void rs600_gart_set_page(struct radeon_device *rdev, unsigned i,
 			 uint64_t entry)
 {
+#if 0
 	void __iomem *ptr = (void *)rdev->gart.ptr;
 	writeq(entry, ptr + (i * 8));
+#else
+  /* MIPS 32bit does not supports writeq (see pfx##write in arch/mips/include/asm/io.h)
+     TODO: check cpu_has_64bits here */
+	uint64_t __iomem *ptr = (void *)rdev->gart.ptr;
+	ptr[i] = entry;
+#endif
 }
 
 int rs600_irq_set(struct radeon_device *rdev)
