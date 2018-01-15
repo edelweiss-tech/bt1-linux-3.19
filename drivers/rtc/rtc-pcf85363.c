@@ -23,6 +23,8 @@
 #include <linux/of_device.h>
 #include <linux/regmap.h>
 
+#define DRIVER_NAME "rtc-pcf85363"
+
 /*
  * Date/Time registers
  */
@@ -73,14 +75,18 @@
 #define CTRL_RESETS	0x2f
 #define CTRL_RAM	0x40
 
+#ifdef CONFIG_NVMEM
 #define NVRAM_SIZE	0x40
+#endif
 
 static struct i2c_driver pcf85363_driver;
 
 struct pcf85363 {
 	struct device		*dev;
 	struct rtc_device	*rtc;
+#ifdef CONFIG_NVMEM
 	struct nvmem_config	nvmem_cfg;
+#endif
 	struct regmap		*regmap;
 };
 
@@ -137,6 +143,7 @@ static const struct rtc_class_ops rtc_ops = {
 	.set_time	= pcf85363_rtc_set_time,
 };
 
+#ifdef CONFIG_NVMEM
 static int pcf85363_nvram_read(void *priv, unsigned int offset, void *val,
 			       size_t bytes)
 {
@@ -154,6 +161,7 @@ static int pcf85363_nvram_write(void *priv, unsigned int offset, void *val,
 	return regmap_bulk_write(pcf85363->regmap, CTRL_RAM + offset,
 				 val, bytes);
 }
+#endif
 
 static const struct regmap_config regmap_config = {
 	.reg_bits = 8,
@@ -182,10 +190,16 @@ static int pcf85363_probe(struct i2c_client *client,
 	pcf85363->dev = &client->dev;
 	i2c_set_clientdata(client, pcf85363);
 
-	pcf85363->rtc = devm_rtc_allocate_device(pcf85363->dev);
+	//pcf85363->rtc = devm_rtc_allocate_device(pcf85363->dev);
+	//if (IS_ERR(pcf85363->rtc))
+  //return PTR_ERR(pcf85363->rtc);
+
+  pcf85363->rtc = devm_rtc_device_register(&client->dev, DRIVER_NAME,
+                                           &rtc_ops, THIS_MODULE);
 	if (IS_ERR(pcf85363->rtc))
 		return PTR_ERR(pcf85363->rtc);
 
+#ifdef CONFIG_NVMEM
 	pcf85363->nvmem_cfg.name = "pcf85363-";
 	pcf85363->nvmem_cfg.word_size = 1;
 	pcf85363->nvmem_cfg.stride = 1;
@@ -194,9 +208,11 @@ static int pcf85363_probe(struct i2c_client *client,
 	pcf85363->nvmem_cfg.reg_write = pcf85363_nvram_write;
 	pcf85363->nvmem_cfg.priv = pcf85363;
 	pcf85363->rtc->nvmem_config = &pcf85363->nvmem_cfg;
+#endif
 	pcf85363->rtc->ops = &rtc_ops;
 
-	return rtc_register_device(pcf85363->rtc);
+	//return rtc_register_device(pcf85363->rtc);
+  return 0;
 }
 
 static const struct of_device_id dev_ids[] = {
