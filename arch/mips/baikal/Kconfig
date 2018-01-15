@@ -357,6 +357,12 @@ config DTB_TP_PM_NIIR
       Device tree for NIIR module and carrier board
       based on Baikal-T1 SOC.
 
+config DTB_TP_MSBT2
+    bool "T-Platforms MSBT2 module and carrier board"
+    help
+      Device tree for MSBT2 module and carrier board
+      based on Baikal-T1 SOC.
+
 help
   Select device tree for Baikal-T SOC based board
 endchoice
