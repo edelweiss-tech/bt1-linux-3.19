@@ -155,9 +155,33 @@
 			clocks = <&gpio_clk 0>;
 			clock-names = "gpioclk";
 
-			marvell:88X2222@0C {
+			mv_ch0:88X2222@0C {
 				compatible = "marvell,88x2222", "ethernet-phy-ieee802.3-c45";
 				reg = <0x0C>;
+				phy-mode = "xgmii";
+				mv,line-mode = <0>; /* 10GBASE-R (0x71) */
+				mv,host-mode = <0>; /* 10GBASE-R (0x71) */
+			};
+
+			mv_ch1:88X2222@0D {
+				compatible = "marvell,88x2222", "ethernet-phy-ieee802.3-c45";
+				reg = <0x0D>;
+				phy-mode = "xgmii";
+				mv,line-mode = <0>; /* 10GBASE-R (0x71) */
+				mv,host-mode = <0>; /* 10GBASE-R (0x71) */
+			};
+
+			mv_ch2:88X2222@0E {
+				compatible = "marvell,88x2222", "ethernet-phy-ieee802.3-c45";
+				reg = <0x0E>;
+				phy-mode = "xgmii";
+				mv,line-mode = <0>; /* 10GBASE-R (0x71) */
+				mv,host-mode = <0>; /* 10GBASE-R (0x71) */
+			};
+
+			mv_ch3:88X2222@0F {
+				compatible = "marvell,88x2222", "ethernet-phy-ieee802.3-c45";
+				reg = <0x0F>;
 				phy-mode = "xgmii";
 				mv,line-mode = <0>; /* 10GBASE-R (0x71) */
 				mv,host-mode = <0>; /* 10GBASE-R (0x71) */
@@ -167,7 +191,7 @@
 		xgbe_phy: xgbe_phy@1F05D000 {
 			compatible = "be,xgbe-phy", "ethernet-phy-ieee802.3-c45";
 			reg = <0x1F05D000 0x1000>;
-			phy-handle = <&marvell>;
+			phy-handle = <&mv_ch0>;
 			phy-mode = "xgmii";
 			clocks = <&div_156m 0>;
 			clock-names = "xgbe_clk";
@@ -412,8 +436,8 @@
 				#gpio-cells = <2>;
 			};
 
-			pcf85363: pcf85363@51 {
-				compatible = "nxp,pcf85363";
+			pcf85263: pcf85263@51 {
+				compatible = "nxp,pcf85263";
 				reg = <0x51>;
 			};
 		};
@@ -451,22 +475,21 @@
 			clock-names = "spi1clk";
 			num-cs = <1>;
 
-      /* spidev1@0 { */
-      /*   compatible = "spidev"; */
-      /*   spi-max-frequency = <1000000>; */
-      /*   reg = <0>; */
-      /* }; */
+			/* spidev1@0 { */
+			/*	 compatible = "spidev"; */
+			/*	 spi-max-frequency = <1000000>; */
+			/*	 reg = <0>; */
+			/* }; */
 
-      flash: w25q128@0 {
-        #address-cells = <1>;
-        #size-cells = <1>;
-        compatible = "winbond,w25q128";
-        reg = <0>;
-        spi-max-frequency = <15000000>;
-      };
-  
-    };
-    
+			flash: w25q128@0 {
+				#address-cells = <1>;
+				#size-cells = <1>;
+				compatible = "winbond,w25q128";
+				reg = <0>;
+				spi-max-frequency = <15000000>;
+			};
+		};
+
 		gpio: gpio@1F044000 {
 			compatible = "snps,dw-apb-gpio";
 			reg = <0x1F044000 0x1000>;
@@ -483,6 +506,14 @@
 				interrupt-controller;
 				interrupts = <GIC_SHARED 19 IRQ_TYPE_LEVEL_HIGH>;
 			};
+		};
+
+		pvt: pvt@1F200000 {
+			compatible = "baikal,pvt";
+			reg = <0x1F200000 0x2C>;
+			interrupt-parent = <&gic>;
+			interrupts = <GIC_SHARED 31 IRQ_TYPE_LEVEL_HIGH>;
+			status = "okay";
 		};
 
 		/* 64 KiB SRAM at address 0x1BF80000 */
