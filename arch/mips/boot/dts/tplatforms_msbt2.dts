@@ -371,14 +371,6 @@
 			clock-frequency = <400000>;
 			clocks = <&i2c0_clk 0>;
 			clock-names = "i2c0clk";
-
-      mbexpander: gpioexp@20 {
-        compatible = "nxp,pca9535";
-        reg = <0x20>;
-        gpio-controller;
-        #gpio-cells = <2>;
-      };
-
 		};
 
 		i2c1: i2c1@1F047000 {
@@ -403,18 +395,22 @@
 				reg = <0x50>;
 			};
 
-      bmc@8 {
-        compatible = "t-platforms,mitx2-bmc";
-        reg = <0x08>;
-      };
-      
-      shred: gpio@21 {
-        compatible = "nxp,pcf8574";
-        reg = <0x21>;
-        gpio-controller;
-        #gpio-cells = <2>;
-        lines-initial-states = <0x0>;
-      };
+			bmc@8 {
+				compatible = "t-platforms,mitx2-bmc";
+				reg = <0x08>;
+			};
+
+			shred: gpioexp@20 {
+				compatible = "nxp,pca9535";
+				reg = <0x20>;
+				gpio-controller;
+				#gpio-cells = <2>;
+			};
+
+			pcf85363: pcf85363@51 {
+				compatible = "nxp,pcf85363";
+				reg = <0x51>;
+			};
 		};
 
 		spi0: spi0@1F04E000 {
