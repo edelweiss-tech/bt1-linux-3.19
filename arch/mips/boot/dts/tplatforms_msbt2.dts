@@ -1,22 +1,22 @@
 /*
- * Baikal-T BFK2 board device tree.
- *
- * Copyright (C) 2014-2016  Baikal Electronics JSC
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
+* Baikal-T BFK2 board device tree.
+*
+* Copyright (C) 2014-2016 Baikal Electronics JSC
+*
+* This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; either version 2
+* of the License, or (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+*/
 
 #include <dt-bindings/interrupt-controller/mips-gic.h>
 #include <dt-bindings/gpio/gpio.h>
@@ -47,9 +47,9 @@
 	};
 
 	chosen {
-        bootargs = "root=/dev/ram rw rootwait console=ttyS0,115200n8 earlyprintk=uart8250,mmio32,0x1F04A000,115200 maxcpus=2 nohtw";
+		bootargs = "root=/dev/ram rw rootwait console=ttyS0,115200n8 earlyprintk=uart8250,mmio32,0x1F04A000,115200 maxcpus=2 nohtw";
 		linux,initrd-start = <0x01000000>;
-		linux,initrd-end   = <0x02000000>;
+		linux,initrd-end	 = <0x02000000>;
 	};
 
 	cpus {
@@ -76,17 +76,17 @@
 	memory {
 		device_type = "memory";
 		reg = <0x00000000 0x07000000>,
-		      <0x20000000 0x70000000>;
+		<0x20000000 0x70000000>;
 	};
 
 	/* reserved-memory { */
-	/* 	#address-cells = <1>; */
-	/* 	#size-cells = <1>; */
-	/* 	ranges; */
+		/*		#address-cells = <1>; */
+		/*		#size-cells = <1>; */
+		/*		ranges; */
 
-	/* 	display_reserved: framebuffer@0x07000000 { */
-	/* 		reg = <0x07000000 0x01000000>; */
-	/* 	}; */
+		/*		display_reserved: framebuffer@0x07000000 { */
+			/*			reg = <0x07000000 0x01000000>; */
+		/*		}; */
 	/* }; */
 
 	gic: gic@1BDC0000 {
@@ -203,7 +203,7 @@
 		xgmac: eth0@1F054000 {
 			compatible = "be,baikal-xgbe";
 			reg = <0x1F054000 0x4000>,
-			      <0x1F05D000 0x1000>;
+			<0x1F05D000 0x1000>;
 			interrupt-parent = <&gic>;
 			interrupts = <GIC_SHARED 80 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&xgmac_dma 0>, <&xgmac_ptp 0>;
@@ -265,21 +265,21 @@
 			ranges;
 
 			dwc3@1F100000 {
-					compatible = "snps,dwc3", "synopsys,dwc3";
-					reg = <0x1F100000 0x10000>;
-					interrupts = <GIC_SHARED 68 IRQ_TYPE_LEVEL_HIGH>;
-					dr_mode = "host";
+				compatible = "snps,dwc3", "synopsys,dwc3";
+				reg = <0x1F100000 0x10000>;
+				interrupts = <GIC_SHARED 68 IRQ_TYPE_LEVEL_HIGH>;
+				dr_mode = "host";
 
-					tx-fifo-resize;
+				tx-fifo-resize;
 
-					maximum-speed = "high-speed";
+				maximum-speed = "high-speed";
 			};
 		};
 
 		pci: pci@1F052000 {
 			compatible = "snps,dw-pci";
 			interrupts = <GIC_SHARED 88 IRQ_TYPE_LEVEL_HIGH>,
-				<GIC_SHARED 89 IRQ_TYPE_LEVEL_HIGH>;
+			<GIC_SHARED 89 IRQ_TYPE_LEVEL_HIGH>;
 			reg = <0x1F052000 0x1000>;
 		};
 
@@ -287,8 +287,8 @@
 			compatible = "be,emc", "be,memory-controller";
 			reg = <0x1F042000 0x1000>;
 			interrupts = <GIC_SHARED 96 IRQ_TYPE_LEVEL_HIGH>,
-						 <GIC_SHARED 97 IRQ_TYPE_LEVEL_HIGH>,
-						 <GIC_SHARED 98 IRQ_TYPE_LEVEL_HIGH>;
+			<GIC_SHARED 97 IRQ_TYPE_LEVEL_HIGH>,
+			<GIC_SHARED 98 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&ddr_pll 0>;
 			clock-names = "ddrclk";
 		};
@@ -306,20 +306,20 @@
 		};
 	};
 
-  leds {
-    compatible = "gpio-leds";
-    hdd {
-      label = "Disk Activity";
-      gpios = <&porta 18 GPIO_ACTIVE_HIGH>;
-      linux,default-trigger = "heartbeat";
-    };
-    
-    /* fault { */
-    /*   gpios = <&porta 18 GPIO_ACTIVE_HIGH>; */
-    /*   /\* Keep LED on if BIOS detected hardware fault *\/ */
-    /* default-state = "off"; */
-    /* }; */
-  };
+	leds {
+		compatible = "gpio-leds";
+		hdd {
+			label = "Disk Activity";
+			gpios = <&porta 18 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "heartbeat";
+		};
+
+		/* fault { */
+			/*	 gpios = <&porta 18 GPIO_ACTIVE_HIGH>; */
+			/*	 /\* Keep LED on if BIOS detected hardware fault *\/ */
+			/* default-state = "off"; */
+		/* }; */
+	};
 
 	apb {
 		compatible = "simple-bus";
@@ -361,7 +361,7 @@
 			reg-io-width = <4>;
 			clocks = <&uart_clk 0>, <&apb_clk 0>;
 			clock-names = "baudclk", "apb_pclk";
-//			snps,uart-16550-compatible;
+			//			snps,uart-16550-compatible;
 			dcd-override;
 			dsr-override;
 			cts-override;
@@ -376,7 +376,7 @@
 			reg-io-width = <4>;
 			clocks = <&uart_clk 0>, <&apb_clk 0>;
 			clock-names = "baudclk", "apb_pclk";
-    };
+		};
 
 		wdt: watchdog@1F04C000 {
 			compatible = "snps,dw-wdt";
@@ -450,19 +450,31 @@
 			interrupts = <GIC_SHARED 40 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&spi0_clk 0>;
 			clock-names = "spi0clk";
-			num-cs = <2>;
-      cs-gpios = <&porta 14 GPIO_ACTIVE_LOW>;
-      
-      mmc-slot@0 {
-        compatible = "fsl,mpc8323rdb-mmc-slot",
-        "mmc-spi-slot";
-        reg = <0>;
-        //gpios = <&porta 15 GPIO_ACTIVE_LOW
-        //&porta 15 GPIO_ACTIVE_HIGH>;
-        voltage-ranges = <2000 3600>;
-        spi-max-frequency = <1000000>;
-        //interrupts = <GIC_SHARED 19 IRQ_TYPE_LEVEL_HIGH>;
-      };
+			num-cs = <4>;
+
+			spidev0@0 {
+				compatible = "spidev";
+				spi-max-frequency = <1000000>;
+				reg = <0>;
+			};
+
+			spidev1@1 {
+				compatible = "spidev";
+				spi-max-frequency = <1000000>;
+				reg = <1>;
+			};
+
+			spidev2@2 {
+				compatible = "spidev";
+				spi-max-frequency = <1000000>;
+				reg = <2>;
+			};
+
+			spidev3@3 {
+				compatible = "spidev";
+				spi-max-frequency = <1000000>;
+				reg = <3>;
+			};
 		};
 
 		spi1: spi1@1F04F000 {
@@ -473,20 +485,30 @@
 			interrupts = <GIC_SHARED 41 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&spi1_clk 0>;
 			clock-names = "spi1clk";
-			num-cs = <1>;
+			num-cs = <4>;
 
-			/* spidev1@0 { */
-			/*	 compatible = "spidev"; */
-			/*	 spi-max-frequency = <1000000>; */
-			/*	 reg = <0>; */
-			/* }; */
-
-			flash: w25q128@0 {
-				#address-cells = <1>;
-				#size-cells = <1>;
-				compatible = "winbond,w25q128";
+			spidev0@0 {
+				compatible = "spidev";
+				spi-max-frequency = <1000000>;
 				reg = <0>;
-				spi-max-frequency = <15000000>;
+			};
+
+			spidev1@1 {
+				compatible = "spidev";
+				spi-max-frequency = <1000000>;
+				reg = <1>;
+			};
+
+			spidev2@2 {
+				compatible = "spidev";
+				spi-max-frequency = <1000000>;
+				reg = <2>;
+			};
+
+			spidev3@3 {
+				compatible = "spidev";
+				spi-max-frequency = <1000000>;
+				reg = <3>;
 			};
 		};
 
