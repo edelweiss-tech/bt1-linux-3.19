@@ -191,7 +191,7 @@
 		xgbe_phy: xgbe_phy@1F05D000 {
 			compatible = "be,xgbe-phy", "ethernet-phy-ieee802.3-c45";
 			reg = <0x1F05D000 0x1000>;
-			phy-handle = <&mv_ch0>;
+			phy-handle = <&mv_ch1>;
 			phy-mode = "xgmii";
 			clocks = <&div_156m 0>;
 			clock-names = "xgbe_clk";
@@ -392,7 +392,7 @@
 			compatible = "snps,designware-i2c";
 			reg = <0x1F046000 0x1000>;
 			interrupts = <GIC_SHARED 33 IRQ_TYPE_LEVEL_HIGH>;
-			clock-frequency = <400000>;
+			clock-frequency = <100000>;
 			clocks = <&i2c0_clk 0>;
 			clock-names = "i2c0clk";
 		};
@@ -403,7 +403,7 @@
 			compatible = "snps,designware-i2c";
 			reg = <0x1F047000 0x1000>;
 			interrupts = <GIC_SHARED 34 IRQ_TYPE_LEVEL_HIGH>;
-			clock-frequency = <400000>;
+			clock-frequency = <100000>;
 			clocks = <&i2c1_clk 0>;
 			clock-names = "i2c1clk";
 
