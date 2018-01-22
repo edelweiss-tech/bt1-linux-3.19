@@ -384,7 +384,7 @@
 			clock-names = "spi1clk";
 			num-cs = <0>;
     };
-    
+
 		gpio: gpio@1F044000 {
 			compatible = "snps,dw-apb-gpio";
 			reg = <0x1F044000 0x1000>;
@@ -401,6 +401,14 @@
 				interrupt-controller;
 				interrupts = <GIC_SHARED 19 IRQ_TYPE_LEVEL_HIGH>;
 			};
+		};
+
+		pvt: pvt@1F200000 {
+			compatible = "baikal,pvt";
+			reg = <0x1F200000 0x2C>;
+			interrupt-parent = <&gic>;
+			interrupts = <GIC_SHARED 31 IRQ_TYPE_LEVEL_HIGH>;
+			status = "okay";
 		};
 
 		/* 64 KiB SRAM at address 0x1BF80000 */
