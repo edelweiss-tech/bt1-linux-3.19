@@ -89,7 +89,7 @@ static inline int dw_wdt_top_in_seconds(unsigned top)
 	 * There are 16 possible timeout values in 0..15 where the number of
 	 * cycles is 2 ^ (16 + i) and the watchdog counts down.
 	 */
-	return (1 << (16 + top)) / clk_get_rate(dw_wdt.clk);
+	return (1 << (12 + top)) / clk_get_rate(dw_wdt.clk);
 }
 
 static int dw_wdt_get_top(void)
@@ -112,7 +112,7 @@ static int dw_wdt_set_top(unsigned top_s)
 	 * Iterate over the timeout values until we find the closest match. We
 	 * always look for >=.
 	 */
-	for (i = 0; i <= DW_WDT_MAX_TOP; ++i)
+	for (i = 4; i <= DW_WDT_MAX_TOP; ++i)
 		if (dw_wdt_top_in_seconds(i) >= top_s) {
 			top_val = i;
 			break;
@@ -123,6 +123,8 @@ static int dw_wdt_set_top(unsigned top_s)
 		dw_wdt.regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
 
 	dw_wdt_set_next_heartbeat();
+	writel(WDOG_COUNTER_RESTART_KICK_VALUE, dw_wdt.regs +
+	       WDOG_COUNTER_RESTART_REG_OFFSET);
 
 	return dw_wdt_top_in_seconds(top_val);
 }
