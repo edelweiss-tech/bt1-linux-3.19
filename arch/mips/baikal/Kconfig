@@ -351,10 +351,10 @@ config DTB_TP_MITX2
       Device tree for mITX2 series boards (for versions 2.x+)
       based on Baikal-T1 SOC.
 
-config DTB_TP_PM_NIIR
-    bool "T-Platforms NIIR module and carrier board"
+config DTB_TP_MRBT1
+    bool "T-Platforms MRBT1 module and carrier board"
     help
-      Device tree for NIIR module and carrier board
+      Device tree for MRBT1 module and carrier board
       based on Baikal-T1 SOC.
 
 config DTB_TP_MSBT2
