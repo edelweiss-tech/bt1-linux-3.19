@@ -1,7 +1,7 @@
 dtb-$(CONFIG_DTB_BAIKAL)		+= baikal.dtb
 dtb-$(CONFIG_DTB_BAIKAL_BFK)		+= baikal_bfk.dtb
 dtb-$(CONFIG_DTB_BAIKAL_BFK2)		+= baikal_bfk2.dtb
-dtb-$(CONFIG_DTB_TP_MITX2)		+= tplatforms_mitx2.dtb
+dtb-$(CONFIG_DTB_TP_MITX4)		+= tplatforms_mitx4.dtb
 dtb-$(CONFIG_DTB_TP_MRBT1)		+= tplatforms_mrbt1.dtb
 dtb-$(CONFIG_DTB_TP_MSBT2)		+= tplatforms_msbt2.dtb
 dtb-$(CONFIG_DTB_BAIKAL_FPGA)		+= baikal_fpga.dtb
