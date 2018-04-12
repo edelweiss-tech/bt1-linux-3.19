@@ -223,7 +223,7 @@
     hdd {
       label = "Disk Activity";
       gpios = <&porta 18 GPIO_ACTIVE_HIGH>;
-      linux,default-trigger = "heartbeat";
+      linux,default-trigger = "disk-activity";
     };
     
     /* fault { */
