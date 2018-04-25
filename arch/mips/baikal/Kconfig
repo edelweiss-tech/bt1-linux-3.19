@@ -345,16 +345,16 @@ config DTB_BAIKAL_FPGA
       Device tree for Baikal-T FPGA prototype.
       Simple device configuration.
 
-config DTB_TP_MITX4
-    bool "T-Platforms mITX4-series board"
-    help
-      Device tree for mITX4 series boards (for versions 4.x and 2.2)
-      based on Baikal-T1 SOC.
-
 config DTB_TP_MITX3
     bool "T-Platforms mITX-amd-series board"
     help
       Device tree for mITX3 series boards (for version 3)
+      based on Baikal-T1 SOC.
+
+config DTB_TP_MITX4
+    bool "T-Platforms mITX4-series board"
+    help
+      Device tree for mITX4 series boards (for versions 4 and 2.2)
       based on Baikal-T1 SOC.
 
 config DTB_TP_MRBT1
